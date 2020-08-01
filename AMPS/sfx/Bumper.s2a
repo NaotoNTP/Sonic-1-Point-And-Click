@@ -1,0 +1,20 @@
+	sHeaderInitSFX
+	sHeaderPrio	$70
+	sHeaderCh	$03
+	sHeaderSFX	$80, ctFM5, .FM5, $00, $00
+	sHeaderSFX	$80, ctFM4, .FM4, $00, $00
+	sHeaderSFX	$80, ctFM3, .FM3, $00, $02
+
+.FM5	sVoice		pBumper1
+	sJump		.Jump
+
+.FM4	sVoice		pStarpost
+	saDetune	$07
+	dc.b nRst, $01
+
+.Jump	dc.b nA4, $20
+	sStop
+
+.FM3	sVoice		pBumper2
+	dc.b nCs2, $03
+	sStop

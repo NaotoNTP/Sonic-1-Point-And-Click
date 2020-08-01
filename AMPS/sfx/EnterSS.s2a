@@ -1,0 +1,28 @@
+	sHeaderInitSFX
+	sHeaderPrio	$70
+	sHeaderCh	$01
+	sHeaderSFX	$80, ctFM5, .FM5, $00, $02
+
+; this monstrocity is here because as it turns out, this sound effect is stupid and it should feel bad
+; fun fact: It sounds really different in S3K, because of a different modulation algorithm. This here
+; recreates how it sounded like originally. Its bad, yes.
+
+.FM5	sVoice		pEnterSS
+	dc.b nEb6, $02
+	saDetune	$5B
+	dc.b sHold, $01
+	saDetune	-$5B
+	dc.b sHold, $01
+
+.Loop
+	saDetune	-$5B
+	dc.b sHold, $02
+	saDetune	$5B
+	dc.b sHold, $01
+	saDetune	$5B
+	dc.b sHold, $02
+	saDetune	-$5B
+	dc.b sHold, $01
+	sLoop		$00, $10, .Loop
+	sStop
+
