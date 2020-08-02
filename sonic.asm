@@ -2139,7 +2139,7 @@ Sega_WaitPal:
 Sega_WaitEnd:
 		move.b	#2,(v_vbla_routine).w
 		bsr.w	WaitForVBla
-		tst.w	mComm.w			; check if playback has ended
+		tst.b	mComm.w			; check if playback has ended
 		bne.s	Sega_GotoTitle		; if yes, branch
 		andi.b	#btnStart,(v_jpadpress1).w ; is Start button pressed?
 		beq.s	Sega_WaitEnd	; if not, branch
