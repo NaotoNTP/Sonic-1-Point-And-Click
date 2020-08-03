@@ -289,7 +289,7 @@ RLoss_Count:	; Routine 0
 		move.b	#3,obPriority(a1)
 		move.b	#$47,obColType(a1)
 		move.b	#8,obActWid(a1)
-		move.b	#-1,(v_ani3_time).w
+		move.b	#$FF,(v_ani3_time).w
 		move.w 	(a3)+,$10(a1) ; move the data contained in the array to the x velocity and increment the address in a3
 		move.w	(a3)+,$12(a1) ; move the data contained in the array to the y velocity and increment the address in a3
 		dbf	d5,@loop	; repeat for number of rings (max 31)
@@ -308,6 +308,8 @@ RLoss_Bounce:	; Routine 2
 		bra.s	@chkdel
 		
 	@checkhover:
+		cmpi.b	#239,(v_ani3_time).w
+		bhi.s	@noclick
 		moveq	#8,d2
 		moveq	#$10,d3
 		move.w	(v_mouse_worldx).w,d0

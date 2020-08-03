@@ -7,12 +7,8 @@ Monitor:
 		beq.s	@normal
 		btst.b	#2,obStatus(a0)
 		beq.s	@fail
-		lea	(v_objstate).w,a2
-		moveq	#0,d0
-		move.b	obRespawnNo(a0),d0
-		bclr	#7,2(a2,d0.w)
-		btst	#0,2(a2,d0.w)	; has monitor been broken?
-		bne.s	@fail	; if so, branch
+		cmpi.b	#9,obAnim(a0)
+		beq.s	@fail
 		bsr.w	FindFreeObj
 		bne.s	@fail
 		move.b	#id_PowerUp,0(a1) ; load monitor contents object

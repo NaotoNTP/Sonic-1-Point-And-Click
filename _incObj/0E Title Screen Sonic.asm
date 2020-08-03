@@ -46,6 +46,7 @@ TSon_Move:	; Routine 4
 ; ===========================================================================
 
 TSon_Animate:	; Routine 6
+		
 		moveq	#$24,d2
 		move.w	d2,d3
 		add.w	d3,d3
@@ -60,8 +61,23 @@ TSon_Animate:	; Routine 6
 		cmp.w	d3,d1
 		bcc.s	@nohover
 		bset.b	#0,(v_mouse_gfxindex).w
+		tst.b	obStatus(a0)
+		bne.s	@skipclr
+		bset.b	#7,obStatus(a0)
+		moveq	#0,d0
+		move.w	(vdp_counter).l,d0
+		addq.b	#1,d0
+		add.b	(vdp_counter).l,d0
+		andi.b	#9,d0
+	;	tst.w	d0
+		bne.s	@skipclr
+		sfx	sfx_ImSonic
+		bra.s	@skipclr
 		
 	@nohover:
+		bclr.b	#7,obStatus(a0)
+		
+	@skipclr:
 		lea	(Ani_TSon).l,a1
 		bsr.w	AnimateSprite
 		bra.w	DisplaySprite

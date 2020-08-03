@@ -147,9 +147,13 @@ Got_NextLevel:	; Routine $A
 		add.w	d1,d1
 		add.w	d1,d0
 		move.w	LevelOrder(pc,d0.w),d0 ; load level from level order array
+		cmpi.w	#$0200,d0
+		beq.s	@endSAGEdemo
 		move.w	d0,(v_zone).w	; set level number
 		tst.w	d0
 		bne.s	Got_ChkSS
+		
+	@endSAGEdemo:		; NTP: Remember to remove
 		move.b	#id_Sega,(v_gamemode).w
 		bra.s	Got_Display2
 ; ===========================================================================

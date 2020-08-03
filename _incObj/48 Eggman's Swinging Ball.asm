@@ -181,8 +181,8 @@ GBall_ChkVanish:; Routine 8
 GBall_Vanish:
 		move.b	d0,obFrame(a0)
 		
-		moveq	#$18,d2
-		moveq	#$30,d3
+		moveq	#$1A,d2
+		moveq	#$34,d3
 		move.w	(v_mouse_worldx).w,d0
 		sub.w	obX(a0),d0
 		add.w	d2,d0

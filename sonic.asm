@@ -2376,7 +2376,7 @@ loc_3230:
 		bne.w	Tit_MainLoop	; if not, branch
 		btst.b	#0,(v_mouse_press).w
 		beq.w	Tit_MainLoop
-
+		
 Tit_ChkLevSel:
 		tst.b	(f_levselcheat).w ; check if level select code is on
 		beq.w	PlayLevel	; if not, play level
@@ -7103,6 +7103,8 @@ Sonic_Modes:	dc.w Sonic_MdNormal-Sonic_Modes
 ; ---------------------------------------------------------------------------
 
 Sonic_MdNormal:
+		bclr.b	#7,obStatus(a0)
+		bsr.w	Sonic_MouseBoost
 		bsr.w	Sonic_Jump
 		bsr.w	Sonic_SlopeResist
 		bsr.w	Sonic_Move
@@ -7115,6 +7117,8 @@ Sonic_MdNormal:
 ; ===========================================================================
 
 Sonic_MdJump:
+		bclr.b	#7,obStatus(a0)
+		bsr.w	Sonic_MouseBoost
 		bsr.w	Sonic_JumpHeight
 		bsr.w	Sonic_JumpDirection
 		bsr.w	Sonic_LevelBound
@@ -7130,6 +7134,35 @@ loc_12E5C:
 ; ===========================================================================
 
 Sonic_MdRoll:
+		btst.b	#7,obStatus(a0)
+		bne.s	Sonic_MdRollNoMouse
+		moveq	#$E,d2
+		moveq	#$1C,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	Sonic_MdRollNoMouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	Sonic_MdRollNoMouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	Sonic_MdRollNoMouse
+		bset.b	#7,obStatus(a0)
+		bset.b	#1,obStatus(a0)
+		move.w	obVelX(a0),d0
+		bmi.s	@neg
+		neg.w	d0
+	
+	@neg:
+		move.w	d0,obVelY(a0)
+		sfx	sfx_Bumper
+		bra.s	Sonic_MdJump2NoMouse
+		
+Sonic_MdRollNoMouse:
 		bsr.w	Sonic_Jump
 		bsr.w	Sonic_RollRepel
 		bsr.w	Sonic_RollSpeed
@@ -7141,6 +7174,28 @@ Sonic_MdRoll:
 ; ===========================================================================
 
 Sonic_MdJump2:
+		btst.b	#7,obStatus(a0)
+		bne.s	Sonic_MdJump2NoMouse
+		moveq	#$E,d2
+		moveq	#$1C,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	Sonic_MdJump2NoMouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	Sonic_MdJump2NoMouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	Sonic_MdJump2NoMouse
+		bset.b	#7,obStatus(a0)
+		neg.w	obVelY(a0)
+		sfx	sfx_Bumper
+		
+Sonic_MdJump2NoMouse:
 		bsr.w	Sonic_JumpHeight
 		bsr.w	Sonic_JumpDirection
 		bsr.w	Sonic_LevelBound
@@ -7160,22 +7215,115 @@ loc_12EA6:
 
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
-; Unused subroutine to squash Sonic
+; Mouse Boost Routine
 ; ---------------------------------------------------------------------------
-		move.b	obAngle(a0),d0
-		addi.b	#$20,d0
-		andi.b	#$C0,d0
-		bne.s	locret_13302
-		bsr.w	Sonic_DontRunOnWalls
-		tst.w	d1
-		bpl.s	locret_13302
-		move.w	#0,obInertia(a0) ; stop Sonic moving
-		move.w	#0,obVelX(a0)
-		move.w	#0,obVelY(a0)
-		move.b	#id_Warp3,obAnim(a0) ; use "warping" animation
-
-locret_13302:
+Sonic_MouseBoost:
+		moveq	#$C,d2
+		moveq	#$18,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@noclick
+		moveq	#$13,d2
+		moveq	#$26,d3
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@noclick
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@noclick
+		bset.b	#2,obStatus(a0)
+		move.b	#$E,obHeight(a0)
+		move.b	#7,obWidth(a0)
+		move.b	#id_roll,obAnim(a0)
+		addq.w	#5,obY(a0)
+		sfx	sfx_Dash
+		addq.l	#4,sp
+		move.w	obInertia(a0),d0
+		beq.s	@stand
+		move.w	d0,d1
+		asr.w	#2,d0
+		add.w	d0,obInertia(a0)
+		bpl.s	@pos
+		cmpi.w	#-$400,d1
+		ble.w	Sonic_MdRollNoMouse
+		
+	@negmv:
+		move.w	#-$400,obInertia(a0)
+		bra.w	Sonic_MdRollNoMouse
+	
+	@pos:	
+		cmpi.w	#$400,d1
+		bge.w	Sonic_MdRollNoMouse
+	
+	@posmv:
+		move.w	#$400,obInertia(a0)
+		bra.w	Sonic_MdRollNoMouse
+		
+	@noclick:
 		rts
+	
+	@stand:
+		btst.b	#0,obStatus(a0)
+		bne.s	@negmv
+		bra.s	@posmv
+		
+Sonic_MouseBoostFall:
+		moveq	#$C,d2
+		moveq	#$18,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@noclick
+		moveq	#$13,d2
+		moveq	#$26,d3
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@noclick
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@noclick
+		bset.b	#2,obStatus(a0)
+		move.b	#$E,obHeight(a0)
+		move.b	#7,obWidth(a0)
+		move.b	#id_roll,obAnim(a0)
+		addq.w	#5,obY(a0)
+		sfx	sfx_Dash
+		addq.l	#4,sp
+		move.w	obVelX(a0),d0
+		beq.s	@stand
+		move.w	d0,d1
+		asr.w	#2,d0
+		add.w	d0,obVelX(a0)
+		bpl.s	@pos
+		cmpi.w	#-$400,d1
+		ble.w	Sonic_MdJump2NoMouse
+		
+	@negmv:
+		move.w	#-$400,obVelX(a0)
+		bra.w	Sonic_MdJump2NoMouse
+	
+	@pos:	
+		cmpi.w	#$400,d1
+		bge.w	Sonic_MdJump2NoMouse
+	
+	@posmv:
+		move.w	#$400,obVelX(a0)
+		bra.w	Sonic_MdJump2NoMouse
+		
+	@noclick:
+		rts
+	
+	@stand:
+		btst.b	#0,obStatus(a0)
+		bne.s	@negmv
+		bra.s	@posmv
 
 		include	"_incObj\Sonic LevelBound.asm"
 		include	"_incObj\Sonic Roll.asm"

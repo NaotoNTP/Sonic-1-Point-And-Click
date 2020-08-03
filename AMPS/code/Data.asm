@@ -87,7 +87,7 @@ SoundIndex:
 	ptrSFX	$80, PushBlock, Waterfall
 
 ; unused SFX
-	ptrSFX	0, UnkA2, UnkAB, UnkB8
+	ptrSFX	0, UnkA2, UnkAB, UnkB8, ImSonic
 
 SFXcount =	__sfx-SFXoff		; number of intalled sound effects
 SFXlast =	__sfx
@@ -106,6 +106,7 @@ SampleList:
 	sample $00C2, Timpani, Stop, LowTimpani	; 85 - Low Timpani
 	sample $00B6, Timpani, Stop, FloorTimpani; 86 - Floor Timpani
 	sample $0100, Sega, Stop		; 87 - SEGA screen
+	sample $0100, ImSonic, Stop		; 88 - I'm Sonic
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Define volume envelopes and their data
@@ -201,7 +202,7 @@ SWF_Stop:	dcb.b $8000-(2*Z80E_Read*(MaxPitch/$100)),$80
 SWFR_Stop:	dcb.b Z80E_Read*(MaxPitch/$100),$00
 ; ---------------------------------------------------------------------------
 
-	incSWF	Kick, Timpani, Snare, Sega
+	incSWF	Kick, Timpani, Snare, Sega, ImSonic
 	opt ae+				; enable automatic evens
 	list				; continue source listing
 ; ---------------------------------------------------------------------------
