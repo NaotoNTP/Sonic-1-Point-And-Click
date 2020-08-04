@@ -289,18 +289,40 @@ GameProgram:
 		beq.w	GameInit	; if yes, branch
 
 CheckSumCheck:
-		movea.l	#EndOfHeader,a0	; start	checking bytes after the header	($200)
-		movea.l	#RomEndLoc,a1	; stop at end of ROM
-		move.l	(a1),d0
-		moveq	#0,d1
-
+		lea    (EndOfHeader).w,sp
+		moveq    #0,d0
+		move.w    Checksum(pc),d0
+		neg.w    d0
+        
 	@loop:
-		add.w	(a0)+,d1
-		cmp.l	a0,d0
-		bhs.s	@loop
-		movea.l	#Checksum,a1	; read the checksum
-		cmp.w	(a1),d1		; compare checksum in header to ROM
-		bne.w	CheckSumError	; if they don't match, branch
+		move.l    d0,a6
+		move.l    a6,usp
+		movem.w    (sp)+,d0-a6        ; 124
+		add.w    (sp)+,d0        ; 014
+		add.w    a6,d0            ; 008
+		
+		move.l    usp,a6            ; 004
+		
+		add.w    d1,d0
+		add.w    d2,d0
+		add.w    d3,d0
+		add.w    d4,d0
+		add.w    d5,d0
+		add.w    d6,d0
+		add.w    d7,d0
+		add.w    a0,d0
+		add.w    a1,d0
+		add.w    a2,d0
+		add.w    a3,d0
+		add.w    a4,d0
+		add.w    a5,d0
+		add.w    a6,d0
+		
+		cmp.l    (RomEndLoc).w,sp
+		blt.s    @loop
+		lea    (v_systemstack).w,sp
+		tst.w    d0        ; compare checksum in header to ROM
+		bne.w    CheckSumError    ; if they don't match, branch
 
 	CheckSumOk:
 		lea	($FFFFFE00).w,a6

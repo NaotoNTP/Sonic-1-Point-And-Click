@@ -104,10 +104,33 @@ MousePointer:
 	@yvelzero:
 		move.b	d5,(v_mouse_vely).w
 		
+		move.b	(v_mouse_press).w,d0
+		btst.l	#1,d0
+		beq.s	@nopressa
+		bset.b	#bitA,(v_jpadpress1).w
+	
+	@nopressa:
+		btst.l	#3,d0
+		beq.s	@nopressstart
+		bset.b	#bitStart,(v_jpadpress1).w
+		
+	@nopressstart:
+		move.b	(v_mouse_hold).w,d0
+		btst.l	#1,d0
+		beq.s	@noholda
+		bset.b	#bitA,(v_jpadhold1).w
+	
+	@noholda:
+		btst.l	#3,d0
+		beq.s	@noholdstart
+		bset.b	#bitStart,(v_jpadhold1).w
+	
+	@noholdstart:
 		tst.b	(v_mouse_hurttimer).w
 		beq.s	@nothurt
 		subq.b	#1,(v_mouse_hurttimer).w
-		clr.w	(v_mouse_hold).w
+		bclr.b	#0,(v_mouse_hold).w
+		bclr.b	#0,(v_mouse_press).w
 		bra.s	@noclick
 		
 	@nothurt:
