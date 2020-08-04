@@ -7,7 +7,7 @@
 
 Sonic_Jump:
 		move.b	(v_jpadpress2).w,d0
-		andi.b	#btnABC,d0	; is A, B or C pressed?
+		andi.b	#btnUp+btnABC,d0	; is Up, A, B or C pressed?
 		beq.w	locret_1348E	; if not, branch
 		moveq	#0,d0
 		move.b	obAngle(a0),d0

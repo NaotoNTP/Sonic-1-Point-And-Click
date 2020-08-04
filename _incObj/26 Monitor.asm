@@ -6,7 +6,7 @@ Monitor:
 		tst.b	(v_signpost).w
 		beq.s	@normal
 		btst.b	#2,obStatus(a0)
-		beq.s	@fail
+		beq.s	@normal
 		cmpi.b	#9,obAnim(a0)
 		beq.s	@fail
 		bsr.w	FindFreeObj

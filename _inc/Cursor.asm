@@ -14,6 +14,24 @@ MousePointer:
 		ext.w	d4
 		ext.w	d5
 		
+		tst.w	(v_player+$34).w
+		beq.s	@nospeedup
+		
+		cmpi.w	#$FFFF,d0
+		bne.s	@divx
+		moveq	#0,d0
+	@divx:	
+		asr.w	#1,d0
+		
+		cmpi.w	#$FFFF,d1
+		bne.s	@divy
+		moveq	#0,d1
+	@divy:	
+		asr.w	#1,d1
+		add.w	(v_mouse_inputx).w,d0
+		add.w	(v_mouse_inputy).w,d1
+		
+	@nospeedup:	
 		add.w 	d0,d2
 		add.w	d4,d2
 		bpl.s	@plusx
