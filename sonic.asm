@@ -7188,9 +7188,10 @@ Sonic_MdRoll:
 		neg.w	d0
 	
 	@neg:
-		move.w	d0,obVelY(a0)
+		asr.w	#1,d0
+		move.w	d0,obVelY(a0)		; NTP: Try tweaking later; 0.75 is too powerful, but 0.50 isn't powerful enough. maybe try 0.625???
 		asr.w	#2,d0
-		sub.w	d0,obVelY(a0)
+		add.w	d0,obVelY(a0)
 		sfx	sfx_ActionBlock
 		bra.s	Sonic_MdJump2NoMouse
 		

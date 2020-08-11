@@ -74,7 +74,7 @@ FindFloor:
 		move.w	d2,d1		; get y-pos. of object
 		andi.w	#$F,d1
 		add.w	d1,d0
-		move.w	#$F,d1
+		moveq	#$F,d1
 		sub.w	d0,d1		; return distance to floor
 		rts	
 ; ===========================================================================
@@ -93,6 +93,82 @@ FindFloor:
 		rts	
 ; End of function FindFloor
 
+; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
+
+
+RingFindFloor:
+		bsr.w	FindNearestTile
+		move.w	(a1),d0		; get value for solidness, orientation and 16x16 tile number
+		move.w	d0,d4
+		andi.w	#$7FF,d0
+		beq.s	@isblank	; branch if tile is blank
+		btst	d5,d4		; is the tile solid?
+		bne.s	@issolid	; if yes, branch
+
+@isblank:
+		moveq	#$10,d1		; return distance to floor
+		rts	
+; ===========================================================================
+
+@issolid:
+		movea.l	(v_collindex).w,a2
+		move.b	(a2,d0.w),d0	; get collision block number
+		andi.w	#$FF,d0
+		beq.s	@isblank	; branch if 0
+		lea	(AngleMap).l,a2
+		move.b	(a2,d0.w),(a4)	; get collision angle value
+		lsl.w	#4,d0
+		move.w	d3,d1		; get x-pos. of object
+		btst	#$B,d4		; is block flipped horizontally?
+		beq.s	@noflip		; if not, branch
+		not.w	d1
+		neg.b	(a4)
+
+	@noflip:
+		btst	#$C,d4		; is block flipped vertically?
+		beq.s	@noflip2	; if not, branch
+		addi.b	#$40,(a4)
+		neg.b	(a4)
+		subi.b	#$40,(a4)
+
+	@noflip2:
+		andi.w	#$F,d1
+		add.w	d0,d1		; (block num. * $10) + x-pos. = place in array
+		lea	(CollArray1).l,a2
+		move.b	(a2,d1.w),d0	; get collision height
+		ext.w	d0
+		eor.w	d6,d4
+		btst	#$C,d4		; is block flipped vertically?
+		beq.s	@noflip3	; if not, branch
+		neg.w	d0
+
+	@noflip3:
+		tst.w	d0
+		beq.s	@isblank	; branch if height is 0
+		bmi.s	@negfloor	; branch if height is negative
+		cmpi.b	#$10,d0
+		beq.s	@maxfloor	; branch if height is $10 (max)
+		move.w	d2,d1		; get y-pos. of object
+		andi.w	#$F,d1
+		add.w	d1,d0
+		moveq	#$F,d1
+		sub.w	d0,d1		; return distance to floor
+		rts	
+; ===========================================================================
+
+@negfloor:
+		move.w	d2,d1
+		andi.w	#$F,d1
+		add.w	d1,d0
+		bpl.s	@isblank
+
+@maxfloor:
+		sub.w	a3,d2
+		bsr.s	FindFloor2	; try tile above the nearest
+		add.w	a3,d2
+		subi.w	#$10,d1		; return distance to floor
+		rts	
+; End of function RingFindFloor
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -153,7 +229,7 @@ FindFloor2:
 		move.w	d2,d1
 		andi.w	#$F,d1
 		add.w	d1,d0
-		move.w	#$F,d1
+		moveq	#$F,d1
 		sub.w	d0,d1
 		rts	
 ; ===========================================================================
@@ -166,3 +242,4 @@ FindFloor2:
 		not.w	d1
 		rts	
 ; End of function FindFloor2
+

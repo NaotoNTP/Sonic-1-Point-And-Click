@@ -63,20 +63,20 @@ TSon_Animate:	; Routine 6
 		bset.b	#0,(v_mouse_gfxindex).w
 		
 	; NTP: code for I'm Sonic Easter Egg
-	;	tst.b	obStatus(a0)
-	;	bne.s	@skipclr
-	;	bset.b	#7,obStatus(a0)
-	;	moveq	#0,d0
-	;	move.w	(vdp_counter).l,d0
-	;	addq.b	#1,d0
-	;	add.b	(vdp_counter).l,d0
-	;	andi.b	#9,d0
-	;	bne.s	@skipclr
-	;	sfx	sfx_ImSonic
-	;	bra.s	@skipclr
+		tst.b	obStatus(a0)
+		bne.s	@skipclr
+		bset.b	#7,obStatus(a0)
+		moveq	#0,d0
+		move.w	(vdp_counter).l,d0
+		addq.b	#1,d0
+		add.b	(vdp_counter).l,d0
+		andi.b	#9,d0
+		bne.s	@skipclr
+		sfx	sfx_ImSonic
+		bra.s	@skipclr
 		
 	@nohover:
-	;	bclr.b	#7,obStatus(a0)
+		bclr.b	#7,obStatus(a0)
 		
 	@skipclr:
 		lea	(Ani_TSon).l,a1

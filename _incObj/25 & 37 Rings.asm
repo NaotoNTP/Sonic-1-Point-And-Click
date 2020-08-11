@@ -305,7 +305,7 @@ RLoss_Bounce:	; Routine 2
 		tst.b	obStatus(a0)
 		bpl.s	@checkhover
 		bsr.w	Obj07_Move
-		bra.s	@chkdel
+		bra.w	@chkdel
 		
 	@checkhover:
 		cmpi.b	#239,(v_ani3_time).w
@@ -339,7 +339,20 @@ RLoss_Bounce:	; Routine 2
 		add.b	d7,d0
 		andi.b	#3,d0
 		bne.s	@chkdel
-		jsr	(ObjFloorDist).l
+		
+		move.w	obX(a0),d3
+		move.w	obY(a0),d2
+	;	move.b	obHeight(a0),d0
+	;	ext.w	d0
+		moveq	#8,d0		; NTP: I mean... obHeight is never *not* 8 when it comes to rings, soooo...
+		add.w	d0,d2
+		lea	(v_anglebuffer).w,a4
+		move.b	#0,(a4)
+		movea.w	#$10,a3
+		move.w	#0,d6
+		moveq	#$D,d5
+		jsr	(RingFindFloor).l
+		
 		tst.w	d1
 		bpl.s	@chkdel
 		add.w	d1,obY(a0)

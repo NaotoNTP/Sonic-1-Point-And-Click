@@ -18,7 +18,9 @@ FindNearestTile:
 		lsr.w	#1,d0
 		andi.w	#$380,d0
 		move.w	d3,d1		; get x-pos. of object
-		lsr.w	#8,d1
+		lsr.w	#3,d1
+		move.w	d1,d4
+		lsr.w	#5,d1
 		andi.w	#$7F,d1
 		add.w	d1,d0		; combine
 		moveq	#-1,d1
@@ -33,10 +35,8 @@ FindNearestTile:
 		add.w	d0,d0
 		andi.w	#$1E0,d0
 		add.w	d0,d1
-		move.w	d3,d0
-		lsr.w	#3,d0
-		andi.w	#$1E,d0
-		add.w	d0,d1
+		andi.w	#$1E,d4
+		add.w	d4,d1
 
 @blanktile:
 		movea.l	d1,a1
@@ -47,10 +47,10 @@ FindNearestTile:
 		andi.w	#$7F,d1
 		btst	#6,obRender(a0) ; is object "behind a loop"?
 		beq.s	@treatasnormal	; if not, branch
-		addq.w	#1,d1
+		addq.b	#1,d1
 		cmpi.w	#$29,d1
 		bne.s	@treatasnormal
-		move.w	#$51,d1
+		moveq	#$51,d1
 
 	@treatasnormal:
 		subq.b	#1,d1
@@ -59,10 +59,8 @@ FindNearestTile:
 		add.w	d0,d0
 		andi.w	#$1E0,d0
 		add.w	d0,d1
-		move.w	d3,d0
-		lsr.w	#3,d0
-		andi.w	#$1E,d0
-		add.w	d0,d1
+		andi.w	#$1E,d4
+		add.w	d4,d1
 		movea.l	d1,a1
 		rts	
 ; End of function FindNearestTile

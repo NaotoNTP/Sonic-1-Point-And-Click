@@ -149,6 +149,23 @@ LGrass_Type05:
 		move.b	$34(a0),d0
 		tst.b	ob2ndRout(a0)
 		bne.s	loc_B010
+		moveq	#$40,d2
+		move.b	d2,d3
+		add.b	d3,d3
+		move.w	(v_mouse_worldx).w,d1
+		sub.w	obX(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		bra.s	loc_B010
+		
+	@nomouse:
 		subq.b	#2,d0
 		bcc.s	loc_B01C
 		moveq	#0,d0
