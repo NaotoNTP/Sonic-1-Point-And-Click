@@ -20,7 +20,7 @@ cat_parent:	equ $3C		; address of parent object
 ; ===========================================================================
 
 locret_16950:
-		rts	
+		rts
 ; ===========================================================================
 
 Cat_Main:	; Routine 0
@@ -94,6 +94,26 @@ Cat_Loop:
 Cat_Head:	; Routine 2
 		tst.b	obStatus(a0)
 		bmi.w	loc_16C96
+
+		moveq	#8,d2				; NTP: maybe clicking the head could destroy it instead?
+		moveq	#$10,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nohover
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nohover
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nohover
+		bset.b	#7,obStatus(a0)
+		bra.w	loc_16C96
+
+	@nohover:
 		moveq	#0,d0
 		move.b	ob2ndRout(a0),d0
 		move.w	Cat_Index2(pc,d0.w),d1
@@ -127,7 +147,7 @@ Cat_Head:	; Routine 2
 
 	@delete:
 		move.b	#$A,obRoutine(a0)	; goto Cat_Delete next
-		rts	
+		rts
 ; ===========================================================================
 
 Cat_Delete:	; Routine $A
@@ -140,7 +160,7 @@ Cat_Index2:	dc.w @wait-Cat_Index2
 @wait:
 		subq.b	#1,$2A(a0)
 		bmi.s	@move
-		rts	
+		rts
 ; ===========================================================================
 
 @move:
@@ -207,7 +227,7 @@ loc_16B02:
 		move.b	d1,$2C(a0,d0.w)
 
 	@notmoving:
-		rts	
+		rts
 ; ===========================================================================
 
 @loc_16B5E:
@@ -219,7 +239,7 @@ loc_16B02:
 			clr.w	obVelX(a0)
 			clr.w	obInertia(a0)
 		endc
-		rts	
+		rts
 ; ===========================================================================
 
 @loc_16B70:
@@ -249,7 +269,7 @@ loc_16B02:
 		endc
 		addq.b	#1,cat_parent(a0)
 		andi.b	#$F,cat_parent(a0)
-		rts	
+		rts
 ; ===========================================================================
 
 Cat_BodySeg2:	; Routine 6
@@ -273,6 +293,26 @@ Cat_BodySeg1:	; Routine 4, 8
 		movea.l	cat_parent(a0),a1
 		tst.b	obStatus(a0)
 		bmi.w	loc_16C90
+
+		moveq	#8,d2
+		moveq	#$10,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nohover
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nohover
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nohover
+		bset.b	#7,obStatus(a0)
+		bra.w	loc_16C90
+
+	@nohover:
 		move.b	$2B(a1),$2B(a0)
 		move.b	ob2ndRout(a1),ob2ndRout(a0)
 		beq.w	loc_16C64

@@ -160,7 +160,7 @@ LGrass_Type05:
 		move.w	(v_mouse_worldy).w,d1
 		sub.w	obY(a0),d1
 		add.w	d2,d1
-		cmp.w	d3,d1
+		cmp.w	d2,d1
 		bcc.s	@nomouse
 		bset.b	#0,(v_mouse_gfxindex).w
 		bra.s	loc_B010
