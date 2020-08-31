@@ -37,6 +37,26 @@ loc_1870A:
 		sfx	sfx_LavaBall	; play lava sound
 
 Obj74_Action:	; Routine 2
+		moveq	#8,d2
+		moveq	#$10,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		sfx	sfx_Death
+		move.b	#$78,(v_mouse_hurttimer).w
+		bra.s	Obj74_Delete
+
+	@nomouse:
 		moveq	#0,d0
 		move.b	ob2ndRout(a0),d0
 		move.w	Obj74_Index2(pc,d0.w),d0
@@ -46,7 +66,7 @@ Obj74_Action:	; Routine 2
 		jsr	(AnimateSprite).l
 		cmpi.w	#$2E8,obY(a0)
 		bhi.s	Obj74_Delete
-		rts	
+		rts
 ; ===========================================================================
 
 Obj74_Delete:
@@ -72,7 +92,7 @@ Obj74_Drop:
 		addq.b	#2,ob2ndRout(a0)
 
 locret_18780:
-		rts	
+		rts
 ; ===========================================================================
 
 Obj74_MakeFlame:
@@ -101,7 +121,7 @@ Obj74_Loop:
 
 loc_187CA:
 		addq.b	#2,ob2ndRout(a0)
-		rts	
+		rts
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -115,7 +135,7 @@ Obj74_Duplicate2:
 		move.w	#$67,obSubtype(a1)
 
 locret_187EE:
-		rts	
+		rts
 ; End of function Obj74_Duplicate2
 
 ; ===========================================================================
@@ -139,17 +159,17 @@ Obj74_Duplicate:
 
 loc_1881E:
 		move.w	obX(a0),$30(a0)
-		rts	
+		rts
 ; ===========================================================================
 
 loc_18826:
 		addq.b	#2,ob2ndRout(a0)
-		rts	
+		rts
 ; ===========================================================================
 
 loc_1882C:
 		addq.b	#2,obRoutine(a0)
-		rts	
+		rts
 ; ===========================================================================
 
 Obj74_FallEdge:
@@ -178,7 +198,7 @@ loc_18856:
 		subq.b	#2,ob2ndRout(a0)
 
 locret_1887E:
-		rts	
+		rts
 ; ===========================================================================
 
 Obj74_Delete2:
@@ -186,6 +206,26 @@ Obj74_Delete2:
 ; ===========================================================================
 
 loc_18886:	; Routine 4
+		moveq	#8,d2
+		moveq	#$10,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		sfx	sfx_Death
+		move.b	#$78,(v_mouse_hurttimer).w
+		bra.s	Obj74_Delete3
+
+	@nomouse:
 		bset	#7,obGfx(a0)
 		subq.b	#1,$29(a0)
 		bne.s	Obj74_Animate

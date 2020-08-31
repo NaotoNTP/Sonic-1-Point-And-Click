@@ -25,7 +25,7 @@ got_finalX:	equ $32		; position for card to finish on
 Got_ChkPLC:	; Routine 0
 		tst.l	(v_plc_buffer).w ; are the pattern load cues empty?
 		beq.s	Got_Main	; if yes, branch
-		rts	
+		rts
 ; ===========================================================================
 
 Got_Main:
@@ -73,7 +73,7 @@ Got_Move:	; Routine 2
 ; ===========================================================================
 
 locret_C60E:
-		rts	
+		rts
 ; ===========================================================================
 
 loc_C610:
@@ -126,7 +126,7 @@ Got_SetDelay:
 		move.w	#180,obTimeFrame(a0) ; set time delay to 3 seconds
 
 locret_C692:
-		rts	
+		rts
 ; ===========================================================================
 
 Got_AddBonus:
@@ -147,12 +147,12 @@ Got_NextLevel:	; Routine $A
 		add.w	d1,d1
 		add.w	d1,d0
 		move.w	LevelOrder(pc,d0.w),d0 ; load level from level order array
-		cmpi.w	#$0200,d0
-		beq.s	@endSAGEdemo
+	;	cmpi.w	#$0200,d0
+	;	beq.s	@endSAGEdemo
 		move.w	d0,(v_zone).w	; set level number
 		tst.w	d0
 		bne.s	Got_ChkSS
-		
+
 	@endSAGEdemo:		; NTP: Remember to remove
 		move.b	#id_Sega,(v_gamemode).w
 		bra.s	Got_Display2
@@ -233,7 +233,7 @@ Got_Move2:	; Routine $E
 ; ===========================================================================
 
 locret_C748:
-		rts	
+		rts
 ; ===========================================================================
 
 Got_SBZ2:
@@ -249,7 +249,7 @@ loc_C766:	; Routine $10
 		addq.w	#2,(v_limitright2).w
 ;		cmpi.w	#$2100,(v_limitright2).w
 		beq.w	DeleteObject
-		rts	
+		rts
 ; ===========================================================================
 		;    x-start,	x-main,	y-main,
 		;				routine, frame number

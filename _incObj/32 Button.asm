@@ -29,7 +29,7 @@ But_Main:	; Routine 0
 
 But_Pressed:	; Routine 2
 		tst.b	obRender(a0)
-		bpl.s	But_Display
+		bpl.w	But_Display
 		move.w	#$1B,d1
 		move.w	#5,d2
 		move.w	#5,d3
@@ -45,6 +45,7 @@ But_Pressed:	; Routine 2
 		beq.s	loc_BDB2
 		moveq	#7,d3
 
+
 loc_BDB2:
 		tst.b	obSubtype(a0)
 		bpl.s	loc_BDBE
@@ -54,6 +55,28 @@ loc_BDB2:
 loc_BDBE:
 		tst.b	ob2ndRout(a0)
 		bne.s	loc_BDC8
+
+		moveq	#$10,d2
+		moveq	#$20,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		moveq	#8,d3
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d3,d1
+		cmp.w	d2,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		move.b	(v_mouse_press).w,d0
+		or.b	(v_mouse_hold).w,d0
+		btst.l	#0,d0
+		beq.s	@nomouse
+		bra.s	loc_BDC8
+
+	@nomouse:
 		bclr	d3,(a3)
 		bra.s	loc_BDDE
 ; ===========================================================================
@@ -78,12 +101,12 @@ loc_BDDE:
 But_Display:
 		bsr.w	DisplaySprite
 		out_of_range	But_Delete
-		rts	
+		rts
 ; ===========================================================================
 
 But_Delete:
 		bsr.w	DeleteObject
-		rts	
+		rts
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -113,7 +136,7 @@ loc_BE4E:
 		moveq	#0,d0
 
 locret_BE5A:
-		rts	
+		rts
 ; ===========================================================================
 But_MZData:	dc.b $10, $10
 ; ===========================================================================
@@ -159,5 +182,5 @@ loc_BE9A:
 loc_BE9E:
 		move.w	(sp)+,d3
 		moveq	#1,d0
-		rts	
+		rts
 ; End of function But_MZBlock

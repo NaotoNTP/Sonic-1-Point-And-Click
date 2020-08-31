@@ -33,6 +33,26 @@ GFire_Main:	; Routine 0
 ; ===========================================================================
 
 loc_B238:	; Routine 2
+		moveq	#8,d2
+		moveq	#$10,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		sfx	sfx_Death
+		move.b	#$78,(v_mouse_hurttimer).w
+	;	bra.w	DeleteObject
+
+	@nomouse:
 		movea.l	$30(a0),a1
 		move.w	obX(a0),d1
 		sub.w	gfire_origX(a0),d1
@@ -69,6 +89,26 @@ loc_B2B0:
 ; ===========================================================================
 
 GFire_Move:	; Routine 4
+		moveq	#8,d2
+		moveq	#$10,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		sfx	sfx_Death
+		move.b	#$78,(v_mouse_hurttimer).w
+	;	bra.w	DeleteObject
+
+	@nomouse:
 		move.w	$2C(a0),d0
 		add.w	$3C(a0),d0
 		move.w	d0,obY(a0)

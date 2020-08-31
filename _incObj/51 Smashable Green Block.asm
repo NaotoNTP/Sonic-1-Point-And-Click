@@ -28,6 +28,27 @@ Smab_Solid:	; Routine 2
 sonicAniFrame:	equ $32		; Sonic's current animation number
 @count:		equ $34		; number of blocks hit + previous stuff
 
+		moveq	#$10,d2
+		moveq	#$20,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		move.b	(v_mouse_press).w,d0
+		or.b	(v_mouse_hold).w,d0
+		btst.l	#0,d0
+		beq.s	@nomouse
+		lea	(v_player).w,a1
+		bra.s	@clicksmash
+
+	@nomouse:
 		move.w	(v_itembonus).w,$34(a0)
 		move.b	(v_player+obAnim).w,sonicAniFrame(a0) ; load Sonic's animation number
 		move.w	#$1B,d1
@@ -39,7 +60,7 @@ sonicAniFrame:	equ $32		; Sonic's current animation number
 		bne.s	@smash		; if yes, branch
 
 	@notspinning:
-		rts	
+		rts
 ; ===========================================================================
 
 @smash:
@@ -51,6 +72,8 @@ sonicAniFrame:	equ $32		; Sonic's current animation number
 		move.b	#7,obWidth(a1)
 		move.b	#id_Roll,obAnim(a1) ; make Sonic roll
 		move.w	#-$300,obVelY(a1) ; rebound Sonic
+
+@clicksmash:
 		bset	#1,obStatus(a1)
 		bclr	#3,obStatus(a1)
 		move.b	#2,obRoutine(a1)
@@ -91,7 +114,7 @@ Smab_Points:	; Routine 4
 		bsr.w	DisplaySprite
 		tst.b	obRender(a0)
 		bpl.w	DeleteObject
-		rts	
+		rts
 ; ===========================================================================
 Smab_Speeds:	dc.w -$200, -$200	; x-speed, y-speed
 		dc.w -$100, -$100

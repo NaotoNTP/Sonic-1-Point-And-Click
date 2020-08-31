@@ -54,6 +54,26 @@ LBall_Main:	; Routine 0
 		sfx	sfx_LavaBall	; play lava ball sound
 
 LBall_Action:	; Routine 2
+		moveq	#8,d2
+		moveq	#$10,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		sfx	sfx_Death
+		move.b	#$78,(v_mouse_hurttimer).w
+		bra.w	DeleteObject
+
+	@nomouse:
 		moveq	#0,d0
 		move.b	obSubtype(a0),d0
 		add.w	d0,d0
@@ -65,7 +85,7 @@ LBall_Action:	; Routine 2
 
 LBall_ChkDel:
 		out_of_range	DeleteObject
-		rts	
+		rts
 ; ===========================================================================
 LBall_TypeIndex:dc.w LBall_Type00-LBall_TypeIndex, LBall_Type00-LBall_TypeIndex
 		dc.w LBall_Type00-LBall_TypeIndex, LBall_Type00-LBall_TypeIndex
@@ -89,7 +109,7 @@ loc_E41E:
 		bset	#1,obStatus(a0)
 
 locret_E430:
-		rts	
+		rts
 ; ===========================================================================
 ; lavaball type	04 flies up until it hits the ceiling
 
@@ -103,7 +123,7 @@ LBall_Type04:
 		move.w	#0,obVelY(a0)	; stop the object when it touches the ceiling
 
 locret_E452:
-		rts	
+		rts
 ; ===========================================================================
 ; lavaball type	05 falls down until it hits the	floor
 
@@ -117,7 +137,7 @@ LBall_Type05:
 		move.w	#0,obVelY(a0)	; stop the object when it touches the floor
 
 locret_E474:
-		rts	
+		rts
 ; ===========================================================================
 ; lavaball types 06-07 move sideways
 
@@ -132,7 +152,7 @@ LBall_Type06:
 		move.w	#0,obVelX(a0)	; stop object when it touches a	wall
 
 locret_E498:
-		rts	
+		rts
 ; ===========================================================================
 
 LBall_Type07:
@@ -146,11 +166,11 @@ LBall_Type07:
 		move.w	#0,obVelX(a0)	; stop object when it touches a	wall
 
 locret_E4BC:
-		rts	
+		rts
 ; ===========================================================================
 
 LBall_Type08:
-		rts	
+		rts
 ; ===========================================================================
 
 LBall_Delete:
