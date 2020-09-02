@@ -1082,6 +1082,12 @@ ReadMouse:
 		move.b	d0,(a0)+
 		and.b	d0,d1
 		move.b	d1,(a0)+
+
+		btst	#3,d1
+		beq.s	@exit
+		bset	#bitStart,(v_jpadhold1).w
+
+	@exit:
 		rts
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||

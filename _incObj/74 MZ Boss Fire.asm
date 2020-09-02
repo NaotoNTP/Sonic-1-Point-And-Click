@@ -5,6 +5,7 @@
 BossFire:
 		moveq	#0,d0
 		move.b	obRoutine(a0),d0
+		bmi.w	Obj74_Delete
 		move.w	Obj74_Index(pc,d0.w),d0
 		jsr	Obj74_Index(pc,d0.w)
 		jmp	(DisplaySprite).l
@@ -52,13 +53,13 @@ Obj74_Action:	; Routine 2
 		bset.b	#0,(v_mouse_gfxindex).w
 		btst.b	#0,(v_mouse_press).w
 		beq.s	@nomouse
-		sfx	sfx_Death
-		move.b	#$78,(v_mouse_hurttimer).w
-		bra.s	Obj74_Delete
+		st	ob2ndRout(a0)
+		bra.w	loc_mousecont
 
 	@nomouse:
 		moveq	#0,d0
 		move.b	ob2ndRout(a0),d0
+		bmi.w	Obj74_Delete
 		move.w	Obj74_Index2(pc,d0.w),d0
 		jsr	Obj74_Index2(pc,d0.w)
 		jsr	(SpeedToPos).l
@@ -212,20 +213,24 @@ loc_18886:	; Routine 4
 		sub.w	obX(a0),d0
 		add.w	d2,d0
 		cmp.w	d3,d0
-		bcc.s	@nomouse
+		bcc.s	loc_nomouse
 		move.w	(v_mouse_worldy).w,d1
 		sub.w	obY(a0),d1
 		add.w	d2,d1
 		cmp.w	d3,d1
-		bcc.s	@nomouse
+		bcc.s	loc_nomouse
 		bset.b	#0,(v_mouse_gfxindex).w
 		btst.b	#0,(v_mouse_press).w
-		beq.s	@nomouse
+		beq.s	loc_nomouse
+		st	obSubtype(a0)
+
+	loc_mousecont:
 		sfx	sfx_Death
 		move.b	#$78,(v_mouse_hurttimer).w
-		bra.s	Obj74_Delete3
+		move.b	#1,obAnim(a0)
+		bra.s	Obj74_Animate
 
-	@nomouse:
+	loc_nomouse:
 		bset	#7,obGfx(a0)
 		subq.b	#1,$29(a0)
 		bne.s	Obj74_Animate

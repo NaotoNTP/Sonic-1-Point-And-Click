@@ -45,6 +45,28 @@ CFlo_Touch:	; Routine 2
 		subq.b	#1,cflo_timedelay(a0) ; subtract 1 from time
 
 	@solid:
+		moveq	#$20,d2
+		moveq	#$40,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		moveq	#$10,d3
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		subq.w	#8,d1
+		add.w	d3,d1
+		cmp.w	d2,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		tst.b	ledge_collapse_flag(a0)
+		bne.s	@nomouse
+		sfx	sfx_BossHit
+		move.b	#1,cflo_collapse_flag(a0)
+		move.b	#23,cflo_timedelay(a0)
+
+	@nomouse:
 		move.w	#$20,d1
 		bsr.w	PlatformObject
 		tst.b	obSubtype(a0)
@@ -106,7 +128,7 @@ loc_842E:
 		move.b	#6,obRoutine(a0) ; run "CFlo_Display" routine
 
 locret_843A:
-		rts	
+		rts
 ; ===========================================================================
 
 CFlo_TimeZero:
@@ -114,12 +136,12 @@ CFlo_TimeZero:
 		bsr.w	DisplaySprite
 		tst.b	obRender(a0)
 		bpl.s	CFlo_Delete
-		rts	
+		rts
 ; ===========================================================================
 
 CFlo_Delete:	; Routine 8
 		bsr.w	DeleteObject
-		rts	
+		rts
 ; ===========================================================================
 
 CFlo_Fragment:

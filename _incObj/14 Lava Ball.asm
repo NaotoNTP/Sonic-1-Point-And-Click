@@ -71,11 +71,21 @@ LBall_Action:	; Routine 2
 		beq.s	@nomouse
 		sfx	sfx_Death
 		move.b	#$78,(v_mouse_hurttimer).w
-		bra.w	DeleteObject
+		cmpi.b	#1,obAnim(a0)
+		beq.s	@extinguish
+		cmpi.b	#3,obAnim(a0)
+		beq.s	@extinguish
+		addq.b	#1,obAnim(a0)
+
+	@extinguish:
+		st	obSubtype(a0)
+		lea	(Ani_Fire).l,a1
+		bra.w	AnimateSprite
 
 	@nomouse:
 		moveq	#0,d0
 		move.b	obSubtype(a0),d0
+		bmi.w	DeleteObject
 		add.w	d0,d0
 		move.w	LBall_TypeIndex(pc,d0.w),d1
 		jsr	LBall_TypeIndex(pc,d1.w)

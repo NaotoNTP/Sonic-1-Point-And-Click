@@ -38,6 +38,8 @@ Bas_Action:	; Routine 2
 ; ===========================================================================
 
 @dropcheck:
+		bsr.w	@chkmouse
+
 		move.w	#$80,d2
 		bsr.w	@chkdistance	; is Sonic < $80 pixels from basaran?
 		bcc.s	@nodrop		; if not, branch
@@ -58,10 +60,12 @@ Bas_Action:	; Routine 2
 		addq.b	#2,ob2ndRout(a0)
 
 	@nodrop:
-		rts	
+		rts
 ; ===========================================================================
 
 @dropfly:
+		bsr.w	@chkmouse
+
 		bsr.w	SpeedToPos
 		addi.w	#$18,obVelY(a0)	; make basaran fall
 		move.w	#$80,d2
@@ -77,15 +81,17 @@ Bas_Action:	; Routine 2
 		addq.b	#2,ob2ndRout(a0)
 
 	@dropmore:
-		rts	
+		rts
 
 	@chkdel:
 		tst.b	obRender(a0)
 		bpl.w	DeleteObject
-		rts	
+		rts
 ; ===========================================================================
 
 @flapsound:
+		bsr.w	@chkmouse
+
 		move.b	(v_vbla_byte).w,d0
 		andi.b	#$F,d0
 		bne.s	@nosound
@@ -108,10 +114,12 @@ Bas_Action:	; Routine 2
 		addq.b	#2,ob2ndRout(a0)
 
 @dontflyup:
-		rts	
+		rts
 ; ===========================================================================
 
 @flyup:
+		bsr.w	@chkmouse
+
 		bsr.w	SpeedToPos
 		subi.w	#$18,obVelY(a0)	; make basaran fly upwards
 		bsr.w	ObjHitCeiling
@@ -125,7 +133,7 @@ Bas_Action:	; Routine 2
 		clr.b	ob2ndRout(a0)
 
 	@noceiling:
-		rts	
+		rts
 ; ===========================================================================
 
 ; Subroutine to check Sonic's distance from the basaran
@@ -149,11 +157,33 @@ Bas_Action:	; Routine 2
 
 	@right:
 		cmp.w	d2,d0
-		rts	
+		rts
 ; ===========================================================================
-; unused crap
-		bsr.w	SpeedToPos
-		bsr.w	DisplaySprite
-		tst.b	obRender(a0)
-		bpl.w	DeleteObject
-		rts	
+
+@chkmouse:
+		moveq	#8,d2
+		moveq	#$10,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		moveq	#$C,d2
+		moveq	#$18,d3
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		move.b	#id_ExplosionItem,0(a0) ; change object to explosion
+		move.b	#0,obRoutine(a0)
+		addq.l	#8,sp
+		moveq	#10,d0
+		jsr	AddPoints
+		jmp	ExplosionItem
+
+	@nomouse:
+		rts

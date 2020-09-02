@@ -37,7 +37,7 @@ Ledge_Touch:	; Routine 2
 
 	@slope:
 		moveq	#$30,d2
-		moveq	#$60,d3	
+		moveq	#$60,d3
 		move.w	(v_mouse_worldx).w,d0
 		sub.w	obX(a0),d0
 		add.w	d2,d0
@@ -51,12 +51,10 @@ Ledge_Touch:	; Routine 2
 		bset.b	#0,(v_mouse_gfxindex).w
 		tst.b	ledge_collapse_flag(a0)
 		bne.s	@nomouse
-	;	btst.b	#0,(v_mouse_press).w
-	;	beq.s	@nomouse
 		sfx	sfx_BossHit
 		move.b	#1,ledge_collapse_flag(a0)
 		move.b	#23,ledge_timedelay(a0)
-		
+
 	@nomouse:
 		move.w	#$30,d1
 		lea	(Ledge_SlopeData).l,a2
@@ -111,7 +109,7 @@ loc_82FC:
 		move.b	#6,obRoutine(a0) ; run "Ledge_Display" routine
 
 locret_8308:
-		rts	
+		rts
 ; ===========================================================================
 
 Ledge_TimeZero:
@@ -119,9 +117,9 @@ Ledge_TimeZero:
 		bsr.w	DisplaySprite
 		tst.b	obRender(a0)
 		bpl.s	Ledge_Delete
-		rts	
+		rts
 ; ===========================================================================
 
 Ledge_Delete:	; Routine 8
 		bsr.w	DeleteObject
-		rts	
+		rts

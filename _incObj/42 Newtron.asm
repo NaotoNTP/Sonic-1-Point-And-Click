@@ -62,11 +62,11 @@ Newt_Action:	; Routine 2
 		bcc.s	@nomouse1
 		bset.b	#0,(v_mouse_gfxindex).w
 		bra.s	@mousehover
-		
+
 	@nomouse1:
 		cmpi.w	#$80,d0		; is Sonic within $80 pixels of	the newtron?
 		bcc.s	@outofrange	; if not, branch
-	
+
 	@mousehover:
 		addq.b	#2,ob2ndRout(a0) ; goto @type00 next
 		move.b	#1,obAnim(a0)
@@ -79,7 +79,7 @@ Newt_Action:	; Routine 2
 
 	@outofrange:
 	@istype00:
-		rts	
+		rts
 ; ===========================================================================
 
 @type00:
@@ -106,8 +106,8 @@ Newt_Action:	; Routine 2
 		moveq	#10,d0
 		jsr	AddPoints
 		bra.w	ExplosionItem
-		
-	@nomouse3:	
+
+	@nomouse3:
 		cmpi.b	#4,obFrame(a0)	; has "appearing" animation finished?
 		bcc.s	@fall		; is yes, branch
 		bset	#0,obStatus(a0)
@@ -117,7 +117,7 @@ Newt_Action:	; Routine 2
 		bclr	#0,obStatus(a0)
 
 	@sonicisright2:
-		rts	
+		rts
 ; ===========================================================================
 
 	@fall:
@@ -147,7 +147,7 @@ Newt_Action:	; Routine 2
 		neg.w	obVelX(a0)
 
 	@keepfalling:
-		rts	
+		rts
 ; ===========================================================================
 
 @matchfloor:
@@ -174,7 +174,7 @@ Newt_Action:	; Routine 2
 		moveq	#10,d0
 		jsr	AddPoints
 		bra.w	ExplosionItem
-		
+
 	@nomouse4:
 		bsr.w	SpeedToPos
 		bsr.w	ObjFloorDist
@@ -183,15 +183,15 @@ Newt_Action:	; Routine 2
 		cmpi.w	#$C,d1
 		bge.s	@nextroutine
 		add.w	d1,obY(a0)	; match	newtron's position with floor
-		rts	
+		rts
 ; ===========================================================================
 
 	@nextroutine:
 		addq.b	#2,ob2ndRout(a0) ; goto @speed next
-		rts	
+		rts
 ; ===========================================================================
 
-@speed:		
+@speed:
 		moveq	#$14,d2
 		moveq	#$28,d3
 		move.w	(v_mouse_worldx).w,d0
@@ -215,10 +215,10 @@ Newt_Action:	; Routine 2
 		moveq	#10,d0
 		jsr	AddPoints
 		bra.w	ExplosionItem
-		
+
 	@nomouse5:
 		bsr.w	SpeedToPos
-		rts	
+		rts
 ; ===========================================================================
 
 @type01:
@@ -243,8 +243,8 @@ Newt_Action:	; Routine 2
 		moveq	#10,d0
 		jsr	AddPoints
 		bra.w	ExplosionItem
-		
-	@nomouse2:	
+
+	@nomouse2:
 		cmpi.b	#1,obFrame(a0)
 		bne.s	@firemissile
 		move.b	#$C,obColType(a0)
@@ -274,7 +274,7 @@ Newt_Action:	; Routine 2
 		move.b	#1,obSubtype(a1)
 
 	@fail:
-		rts	
+		rts
 ; ===========================================================================
 
 Newt_Delete:	; Routine 4
