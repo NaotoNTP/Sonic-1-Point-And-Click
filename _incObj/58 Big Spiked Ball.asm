@@ -39,6 +39,25 @@ BBall_Main:	; Routine 0
 		move.b	#$50,bball_radius(a0) ; set radius of circle motion
 
 BBall_Move:	; Routine 2
+		moveq	#$10,d2
+		moveq	#$20,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		tst.b	(v_mouse_hurttimer).w
+		bne.s	@nomouse
+		sfx	sfx_SpikeHit
+		move.b	#$78,(v_mouse_hurttimer).w
+
+	@nomouse:
 		moveq	#0,d0
 		move.b	obSubtype(a0),d0 ; get object type
 		andi.w	#7,d0		; read only the	2nd digit
@@ -55,7 +74,7 @@ BBall_Move:	; Routine 2
 ; ===========================================================================
 
 @type00:
-		rts	
+		rts
 ; ===========================================================================
 
 @type01:
@@ -71,7 +90,7 @@ BBall_Move:	; Routine 2
 		move.w	bball_origX(a0),d1
 		sub.w	d0,d1
 		move.w	d1,obX(a0)	; move object horizontally
-		rts	
+		rts
 ; ===========================================================================
 
 @type02:
@@ -87,7 +106,7 @@ BBall_Move:	; Routine 2
 		move.w	bball_origY(a0),d1
 		sub.w	d0,d1
 		move.w	d1,obY(a0)	; move object vertically
-		rts	
+		rts
 ; ===========================================================================
 
 @type03:
@@ -108,4 +127,4 @@ BBall_Move:	; Routine 2
 		add.w	d3,d5
 		move.w	d4,obY(a0)	; move object circularly
 		move.w	d5,obX(a0)
-		rts	
+		rts

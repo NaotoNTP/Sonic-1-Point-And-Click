@@ -103,6 +103,31 @@ SBall_Main:	; Routine 0
 		move.b	#1,obFrame(a0)	; use different	frame
 
 SBall_Move:	; Routine 2
+		moveq	#8,d2
+		moveq	#$10,d3
+		cmpi.b	#1,obFrame(a0)
+		blo.s	@syzcol
+		bhi.s	@nomouse
+		add.w	d2,d2
+		add.w	d3,d3
+@syzcol:
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		tst.b	(v_mouse_hurttimer).w
+		bne.s	@nomouse
+		sfx	sfx_SpikeHit
+		move.b	#$78,(v_mouse_hurttimer).w
+
+@nomouse:
 		bsr.w	@movesub
 		bra.w	@chkdel
 ; ===========================================================================
@@ -136,7 +161,7 @@ SBall_Move:	; Routine 2
 		move.w	d4,obY(a1)
 		move.w	d5,obX(a1)
 		dbf	d6,@loop
-		rts	
+		rts
 ; ===========================================================================
 
 @chkdel:
@@ -158,8 +183,33 @@ SBall_Move:	; Routine 2
 		bsr.w	DeleteChild
 		dbf	d2,@deleteloop ; delete all pieces of	chain
 
-		rts	
+		rts
 ; ===========================================================================
 
 SBall_Display:	; Routine 4
+		moveq	#8,d2
+		moveq	#$10,d3
+		cmpi.b	#1,obFrame(a0)
+		blo.s	@syzcol
+		bhi.s	@nomouse
+		add.w	d2,d2
+		add.w	d3,d3
+@syzcol:
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		tst.b	(v_mouse_hurttimer).w
+		bne.s	@nomouse
+		sfx	sfx_SpikeHit
+		move.b	#$78,(v_mouse_hurttimer).w
+
+@nomouse:
 		bra.w	DisplaySprite
