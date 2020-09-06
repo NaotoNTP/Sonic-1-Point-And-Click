@@ -20,7 +20,9 @@ v_lvlobjspace:	equ $FFFFD800	; level object variable space ($1800 bytes)
 
 Drvmem:		equ $FFFFF000 ; start of RAM for the sound driver data
 
-v_mouse_raw:		equ $FFFFF5EA	
+v_isemu:	equ $FFFFF5E9
+
+v_mouse_raw:		equ $FFFFF5EA
 
 v_mouse_inputx:		equ $FFFFF5EE
 v_mouse_inputy:		equ $FFFFF5F0

@@ -757,6 +757,17 @@ JoypadInit:
 		move.b	d0,($A1000D).l		; init port 3 (expansion/extra)
 		move.w	#159,(v_mouse_screenx).w
 		move.w	#111,(v_mouse_screeny).w
+
+		move.w	($C0001C).l,d0
+		cmpi.w	#$FFFF,d0		; Test for KEGA
+		beq.s	@set
+
+		move.w	#1,($C0001C).l
+		move.w	($C0001C).l,d0
+		cmpi.w	#1,d0			; Test for BlastEM
+
+	@set:
+		seq	(v_isemu).w
 		rts
 ; End of function JoypadInit
 
@@ -1057,10 +1068,18 @@ ReadMouse:
 
 	@Yset:
 		neg.w	d1
+		tst.b	(v_isemu).w
+		beq.s	@Yhw
+
+		cmpi.w	#$FFFF,d1
+		bne.s	@divy
+		moveq	#0,d1
+
+	@divy:
+		asr.w	#1,d1
+
+	@Yhw:
 		move.w	d1,(v_mouse_inputy).w
-		muls.w  #$2000,d1
-		swap	d1
-		add.w	d1,(v_mouse_inputy).w
 
 		moveq	#0,d1
 		move.w	d0,d1
@@ -1070,10 +1089,18 @@ ReadMouse:
 		ori.w	#$FF00,d1
 
 	@Xset:
+		tst.b	(v_isemu).w
+		beq.s	@Xhw
+
+		cmpi.w	#$FFFF,d1
+		bne.s	@divx
+		moveq	#0,d1
+
+	@divx:
+		asr.w	#1,d1
+
+	@Xhw:
 		move.w	d1,(v_mouse_inputx).w
-		muls.w  #$2000,d1
-		swap	d1
-		add.w	d1,(v_mouse_inputx).w
 
 		swap	d0
 		andi.b	#$F,d0
