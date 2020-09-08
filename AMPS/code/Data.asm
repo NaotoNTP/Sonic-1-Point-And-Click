@@ -87,7 +87,7 @@ SoundIndex:
 	ptrSFX	$80, PushBlock, Waterfall
 
 ; unused SFX
-	ptrSFX	0, UnkA2, UnkAB, UnkB8, ImSonic
+	ptrSFX	0, UnkA2, UnkAB, UnkB8, ImSonic, Error
 
 SFXcount =	__sfx-SFXoff		; number of intalled sound effects
 SFXlast =	__sfx

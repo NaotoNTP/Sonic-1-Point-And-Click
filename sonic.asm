@@ -768,171 +768,162 @@ JoypadInit:
 
 	@set:
 		seq	(v_isemu).w
+
+		lea	(v_mouse_hold).w,a0
+		lea	($A10003).l,a1		; first	joypad port
+		bsr.w	ReadMouse
+		bmi.s	@fail
+		clr.w	(v_mouse_inputy).w
+		clr.w	(v_mouse_inputx).w
+		clr.w	(v_mouse_hold).w
 		rts
+
 ; End of function JoypadInit
 
 ; ---------------------------------------------------------------------------
-; Subroutine to	detect mouse
-; ---------------------------------------------------------------------------
 
-; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
+@fail:
+		disable_ints
+		lea	(vdp_data_port).l,a0
+		move.w	#$8174,4(a0)
+		locVRAM	$0020,4(a0)
+		lea	(Art_Text).w,a1	; load level select font
+		move.w	#$28F,d1
 
+	@loadtext:
+		move.w	(a1)+,(a0)
+		dbf	d1,@loadtext	; load level select font
 
-;MouseDetect:
-;		lea	($A10005).l,a0		; second serial port
-;		disable_ints			; disable interrupts
-;
-;		move.b	#$60,6(a0)		; set direction bits
-;		or.l	d0,d0			; wait 8 cycles
-;		move.b	#$60,(a0)		; set first phase of packet
-;		or.l	d0,d0			; wait 8 cycles
-;
-;	@La0:
-;		btst	#4,(a0)			; test if handshake is complete
-;		beq.s	@La0			; if not, try again
-;		move.b	(a0),d0			; store packet fragment in d0
-;		andi.b	#$F,d0			; get lower nybble of packet fragment
-;		bne.s	@not_mouse		; if packet nybble aren't '0', branch to "not mouse" handler
+	@line1:
+		locVRAM $C516,4(a0)
+		move.w	#$000D,(a0)	; =
+		move.w	#$0000,(a0)
+		move.w	#$001F,(a0)	; N
+		move.w	#$0020,(a0)	; O
+		move.w	#$0000,(a0)
+		move.w	#$001E,(a0)	; M
+		move.w	#$0020,(a0)	; O
+		move.w	#$0026,(a0)	; U
+		move.w	#$0024,(a0)	; S
+		move.w	#$0016,(a0)	; E
+		move.w	#$0000,(a0)
+		move.w	#$0017,(a0)	; F
+		move.w	#$0020,(a0)	; O
+		move.w	#$0026,(a0)	; U
+		move.w	#$001F,(a0)	; N
+		move.w	#$0015,(a0)	; D
+		move.w	#$0000,(a0)
+		move.w	#$000D,(a0)	; =
 
-;		move.b	#$20,(a0)		; advance to next phase of the packet
-;		move.w	#$FE,d1			; set timeout loop counter (and wait 8 cycles)
+	@line2:
+		locVRAM $C618,4(a0)
+		move.w	#$0021,(a0)	; P
+		move.w	#$001D,(a0)	; L
+		move.w	#$0016,(a0)	; E
+		move.w	#$0012,(a0)	; A
+		move.w	#$0024,(a0)	; S
+		move.w	#$0016,(a0)	; E
+		move.w	#$0000,(a0)
+		move.w	#$001E,(a0)	; M
+		move.w	#$0012,(a0)	; A
+		move.w	#$001C,(a0)	; K
+		move.w	#$0016,(a0)	; E
+		move.w	#$0000,(a0)
+		move.w	#$0024,(a0)	; S
+		move.w	#$0026,(a0)	; U
+		move.w	#$0023,(a0)	; R
+		move.w	#$0016,(a0)	; E
 
-;	@La1:
-;		btst	#4,(a0)			; test if handshake is complete
-;		bne.s	@La2			; if so, branch
-;		dbf	d1,@La1			; if not, decrement timeout counter & try again
-;		bra.s	@timeout		; if not yet still, branch to "timeout" handler
-; ---------------------------------------------------------------------------
-;@not_mouse:
-;		move.b	#$40,6(a0)		; set direction bits
-;		or.l	d0,d0			; wait 8 cycles
-;		move.b	#$40,(a0)		; set port for normal input
-;		bra.s	@errexit		; exit routine
-; ---------------------------------------------------------------------------
-;	@La2:
-;		move.b	(a0),d0			; store packet fragment in d0
-;		andi.b	#$F,d0			; get lower nybble of packet fragment
-;		move.b	#0,(a0)			; advance to next phase of the packet
-;		cmpi.b	#$B,d0			; test the contents of the packet nybble (and wait 8 cycles)
-;		bne.s	@not_mouse		; if packet nybble aren't 'B', branch to "not mouse" handler
-;
-;	@La3:
-;		btst	#4,(a0)			; test if handshake is complete
-;		beq.s	@La4			; if so, branch
-;		dbf	d1,@La3			; if not, decrement timeout counter & try again
-;		bra.s	@timeout		; if not yet still, branch to "timeout" handler
-;
-;	@La4:
-;		move.b	(a0),d0			; store packet fragment in d0 (specs say this nybble should be F)
-;		or.l	d0,d0			; wait 8 cycles
-;		move.b	#$20,(a0)		; advance to next phase of the packet
-;		or.l	d0,d0			; wait 8 cycles
-;
-;	@La5:
-;		btst	#4,(a0)			; test if handshake is complete
-;		bne.s	@La6			; if so, branch
-;		dbf	d1,@La5			; if not, decrement timeout counter & try again
-;		bra.s	@timeout		; if not yet still, branch to "timeout" handler
-;
-;	@La6:
-;		move.b	(a0),d0			; store packet fragment in d0 (specs say this nybble should be F)
-;		or.l	d0,d0			; wait 8 cycles
-;		move.b	#0,(a0)			; advance to next phase of the packet
-;		eor.l	d0,d0			; clear contents of d0 (and wait 8 cycles)
-;
-;	@La7:
-;		btst	#4,(a0)			; test if handshake is complete
-;		beq.s	@La8			; if so, branch
-;		dbf	d1,@La7			; if not, decrement timeout counter & try again
-;		bra.s	@timeout		; if not yet still, branch to "timeout" handler
-;
-;	@La8:
-;		move.b	(a0),d0			; [YO XO YS XS]
-;		move.b	#$20,(a0)		; advance to next phase of the packet
-;		lsl.w	#8,d0			; [0- 0- 0- 0- | 0- 0- 0- 0- || 0- 0- 0- 0- | 0- 0- 0- 0- || 0- 0- 0- 0- | YO XO YS XS || 0- 0- 0- 0- | 0- 0- 0- 0-]
-;
-;	@La9:
-;		btst	#4,(a0)			; test if handshake is complete
-;		bne.s	@La10			; if so, branch
-;		dbf	d1,@La9			; if not, decrement timeout counter & try again
-;	;	bra.s	@timeout		; if not yet still, branch to "timeout" handler
-; ---------------------------------------------------------------------------
-;@timeout:
-;		move.b	#$60,(a0)		; reset to first phase of the packet
-;		or.l	d0,d0			; wait 8 cycles
-;
-;	@To0:
-;		btst	#4,(a0)			; test if handshake is complete
-;		beq.s	@To0			; if not, try again
-;
-;	@errexit:
-;		moveq	#$FFFFFFFF,d0		; set input status to "input error"
-;		bra.s	@exit
-; ---------------------------------------------------------------------------
-;	@La10:
-;		move.b	(a0),d0			; [S- M- R- L-]
-;		move.b	#0,(a0)			; advance to next phase of the packet
-;		lsl.b	#4,d0			; [0- 0- 0- 0- | 0- 0- 0- 0- || 0- 0- 0- 0- | 0- 0- 0- 0- || 0- 0- 0- 0- | YO XO YS XS || S- M- R- L- | 0- 0- 0- 0-]
-;		lsl.l	#4,d0			; [0- 0- 0- 0- | 0- 0- 0- 0- || 0- 0- 0- 0- | 0- 0- 0- 0- || YO XO YS XS | S- M- R- L- || 0- 0- 0- 0- | 0- 0- 0- 0-]
-;
-;	@La11:
-;		btst	#4,(a0)			; test if handshake is complete
-;		beq.s	@La12			; if so, branch
-;		dbf	d1,@La11		; if not, decrement timeout counter & try again
-;		bra.s	@timeout		; if not yet still, branch to "timeout" handler
-;
-;	@La12:
-;		move.b	(a0),d0			; [X7 X6 X5 X4]
-;		move.b	#$20,(a0)		; advance to next phase of the packet
-;		lsl.b	#4,d0			; [0- 0- 0- 0- | 0- 0- 0- 0- || 0- 0- 0- 0- | 0- 0- 0- 0- || YO XO YS XS | S- M- R- L- || X7 X6 X5 X4 | 0- 0- 0- 0-]
-;		lsl.l	#4,d0			; [0- 0- 0- 0- | 0- 0- 0- 0- || 0- 0- 0- 0- | YO XO YS XS || S- M- R- L- | X7 X6 X5 X4 || 0- 0- 0- 0- | 0- 0- 0- 0-]
-;
-;	@La13:
-;		btst	#4,(a0)			; test if handshake is complete
-;		bne.s	@La14			; if so, branch
-;		dbf	d1,@La13		; if not, decrement timeout counter & try again
-;		bra.s	@timeout		; if not yet still, branch to "timeout" handler
-;
-;	@La14:
-;		move.b	(a0),d0			; [X3 X2 X1 X0]
-;		move.b	#0,(a0)			; advance to next phase of the packet
-;		lsl.b	#4,d0			; [0- 0- 0- 0- | 0- 0- 0- 0- || 0- 0- 0- 0- | YO XO YS XS || S- M- R- L- | X7 X6 X5 X4 || X3 X2 X1 X0 | 0- 0- 0- 0-]
-;		lsl.l	#4,d0			; [0- 0- 0- 0- | 0- 0- 0- 0- || YO XO YS XS | S- M- R- L- || X7 X6 X5 X4 | X3 X2 X1 X0 || 0- 0- 0- 0- | 0- 0- 0- 0-]
-;
-;	@La15:
-;		btst	#4,(a0)			; test if handshake is complete
-;		beq.s	@La16			; if so, branch
-;		dbf	d1,@La15		; if not, decrement timeout counter & try again
-;		bra.s	@timeout		; if not yet still, branch to "timeout" handler
-;
-;	@La16:
-;		move.b	(a0),d0			; [Y7 Y6 Y5 Y4]
-;		move.b	#$20,(a0)		; advance to next phase of the packet
-;		lsl.b	#4,d0			; [0- 0- 0- 0- | 0- 0- 0- 0- || YO XO YS XS | S- M- R- L- || X7 X6 X5 X4 | X3 X2 X1 X0 || Y7 Y6 Y5 Y4 | 0- 0- 0- 0-]
-;		lsl.l	#4,d0			; [0- 0- 0- 0- | YO XO YS XS || S- M- R- L- | X7 X6 X5 X4 || X3 X2 X1 X0 | Y7 Y6 Y5 Y4 || 0- 0- 0- 0- | 0- 0- 0- 0-]
-;
-;	@La17:
-;		btst	#4,(a0)			; test if handshake is complete
-;		beq.s	@La18			; if so, branch
-;		dbf	d1,@La17		; if not, decrement timeout counter & try again
-;		bra.s	@timeout		; if not yet still, branch to "timeout" handler
-;
-;	@La18:
-;		move.b	(a0),d0			; [Y3 Y2 Y1 Y0]
-;		move.b	#$60,(a0)		; reset to first phase of the packet
-;		lsl.b	#4,d0			; [0- 0- 0- 0- | YO XO YS XS || S- M- R- L- | X7 X6 X5 X4 || X3 X2 X1 X0 | Y7 Y6 Y5 Y4 || Y3 Y2 Y1 Y0 | 0- 0- 0- 0-]
-;		lsr.l	#4,d0			; [0- 0- 0- 0- | 0- 0- 0- 0- || YO XO YS XS | S- M- R- L- || X7 X6 X5 X4 | X3 X2 X1 X0 || Y7 Y6 Y5 Y4 | Y3 Y2 Y1 Y0]
-;
-;	@La19:
-;		btst	#4,(a0)			; test if handshake is complete
-;		beq.s	@La19			; if not, try again
-;
-;	@exit:
-;		enable_ints			; enable interrupts
-;		move.l	d0,(v_mouse_raw).w	; store raw mouse input value
-;		move.w	#159,(v_mouse_screenx).w
-;		move.w	#111,(v_mouse_screeny).w
-;		rts				; return
+	@line3:
+		locVRAM $C690,4(a0)
+		move.w	#$0010,(a0)	; Y
+		move.w	#$0020,(a0)	; O
+		move.w	#$0026,(a0)	; U
+		move.w	#$0023,(a0)	; R
+		move.w	#$0000,(a0)
+		move.w	#$001E,(a0)	; M
+		move.w	#$0020,(a0)	; O
+		move.w	#$0026,(a0)	; U
+		move.w	#$0024,(a0)	; S
+		move.w	#$0016,(a0)	; E
+		move.w	#$0000,(a0)
+		move.w	#$001A,(a0)	; I
+		move.w	#$0024,(a0)	; S
+		move.w	#$0000,(a0)
+		move.w	#$0021,(a0)	; P
+		move.w	#$001D,(a0)	; L
+		move.w	#$0026,(a0)	; U
+		move.w	#$0018,(a0)	; G
+		move.w	#$0018,(a0)	; G
+		move.w	#$0016,(a0)	; E
+		move.w	#$0015,(a0)	; D
+		move.w	#$0000,(a0)
+		move.w	#$001A,(a0)	; I
+		move.w	#$001F,(a0)	; N
+
+	@line4:
+		locVRAM $C714,4(a0)
+		move.w	#$0025,(a0)	; T
+		move.w	#$0020,(a0)	; O
+		move.w	#$0000,(a0)
+		move.w	#$0014,(a0)	; C
+		move.w	#$0020,(a0)	; O
+		move.w	#$001F,(a0)	; N
+		move.w	#$0025,(a0)	; T
+		move.w	#$0023,(a0)	; R
+		move.w	#$0020,(a0)	; O
+		move.w	#$001D,(a0)	; L
+		move.w	#$001D,(a0)	; L
+		move.w	#$0016,(a0)	; E
+		move.w	#$0023,(a0)	; R
+		move.w	#$0000,(a0)
+		move.w	#$0021,(a0)	; P
+		move.w	#$0020,(a0)	; O
+		move.w	#$0023,(a0)	; R
+		move.w	#$0025,(a0)	; T
+		move.w	#$0000,(a0)
+		move.w	#$0003,(a0)	; 2
+
+	@line5:
+		locVRAM $C794,4(a0)
+		move.w	#$001A,(a0)	; I
+		move.w	#$001F,(a0)	; N
+		move.w	#$0000,(a0)
+		move.w	#$0020,(a0)	; O
+		move.w	#$0023,(a0)	; R
+		move.w	#$0015,(a0)	; D
+		move.w	#$0016,(a0)	; E
+		move.w	#$0023,(a0)	; R
+		move.w	#$0000,(a0)
+		move.w	#$0025,(a0)	; T
+		move.w	#$0020,(a0)	; O
+		move.w	#$0000,(a0)
+		move.w	#$0014,(a0)	; C
+		move.w	#$0020,(a0)	; O
+		move.w	#$001F,(a0)	; N
+		move.w	#$0025,(a0)	; T
+		move.w	#$001A,(a0)	; I
+		move.w	#$001F,(a0)	; N
+		move.w	#$0026,(a0)	; U
+		move.w	#$0016,(a0)	; E
+
+		move.w	#cYellow,d0
+		move.l	#$C0000000,4(a0) ; set VDP to CRAM write
+		move.w	#0,(a0)
+		moveq	#$E,d1
+
+	@clrCRAM:
+		move.w	d0,(a0)
+		dbf	d1,@clrCRAM	; clear	the CRAM
+		sfx	sfx_Error
+
+	@recheck:
+		lea	(v_mouse_hold).w,a0
+		lea	($A10003).l,a1		; first	joypad port
+		bsr.s	ReadMouse
+		bmi.s	@recheck
+		sfx	sfx_Lamppost
+		bra.w	VDPSetupGame
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to	read joypad input, and send it to the RAM
@@ -962,10 +953,6 @@ ReadJoypads:
 		and.b	d0,d1
 		move.b	d1,(a0)+
 
-	;	tst.b	(v_mouse_raw).w
-	;	bpl.s	ReadMouse
-	;	rts
-
 ReadMouse:
 		addq.w	#2,a1			; do the mouse
 		disable_ints
@@ -977,37 +964,73 @@ ReadMouse:
 		btst	#4,(a1)			; test if handshake is complete
 		beq.s	@L0			; if not, try again
 		move.b	(a1),d0			; store packet fragment in d0
-		or.l	d0,d0			; wait 8 cycles
+	;	or.l	d0,d0			; wait 8 cycles
+		andi.b	#$F,d0			; get lower nybble of packet fragment
+		bne.s	@not_mouse		; if packet nybble aren't '0', branch to "not mouse" handler
+
 		move.b	#$20,(a1)		; advance to next phase of the packet
-		or.l	d0,d0			; wait 8 cycles
+		move.w	#$FE,d1			; set timeout loop counter
 
 	@L1:
 		btst	#4,(a1)			; test if handshake is complete
-		beq.s	@L1			; if not, try again
-		move.b	(a1),d0			; store packet fragment in d0
-		or.l	d0,d0			; wait 8 cycles
-		move.b	#0,(a1)			; advance to next phase of the packet
-		or.l	d0,d0			; wait 8 cycles
+	;	beq.s	@L1			; if not, try again
+		bne.s	@L2			; if so, branch
+		dbf	d1,@L1			; if not, decrement timeout counter & try again
+		bra.s	@timeout		; if not yet still, branch to "timeout" handler
 
+	@L2:
+		move.b	(a1),d0			; store packet fragment in d0
+	;	or.l	d0,d0			; wait 8 cycles
+		andi.b	#$F,d0			; get lower nybble of packet fragment
+		move.b	#0,(a1)			; advance to next phase of the packet
+	;	or.l	d0,d0			; wait 8 cycles
+		cmpi.b	#$B,d0			; test the contents of the packet nybble
+		beq.s	@L3			; if packet nybble aren't 'B', fall through to "not mouse" handler
+; ---------------------------------------------------------------------------
+@not_mouse:
+		bra.s	@timeout		; exit routine
+; ---------------------------------------------------------------------------
 	@L3:
 		btst	#4,(a1)			; test if handshake is complete
-		bne.s	@L3			; if not, try again
+	;	bne.s	@L3			; if not, try again
+		beq.s	@L4			; if so, branch
+		dbf	d1,@L3			; if not, decrement timeout counter & try again
+		bra.s	@timeout		; if not yet still, branch to "timeout" handler
+
+	@L4:
 		move.b	(a1),d0			; store packet fragment in d0
-		or.l	d0,d0			; wait 8 cycles
+	;	or.l	d0,d0			; wait 8 cycles
+		andi.b	#$F,d0			; get lower nybble of packet fragment
 		move.b	#$20,(a1)		; advance to next phase of the packet
-		or.l	d0,d0			; wait 8 cycles
+	;	or.l	d0,d0			; wait 8 cycles
+		cmpi.b	#$F,d0			; test the contents of the packet nybble
+		bne.s	@not_mouse		; if packet nybble aren't 'F', branch to "not mouse" handler
 
 	@L5:
 		btst	#4,(a1)			; test if handshake is complete
-		beq.s	@L5			; if not, try again
+	;	beq.s	@L5			; if not, try again
+		bne.s	@L6			; if so, branch
+		dbf	d1,@L5			; if not, decrement timeout counter & try again
+		bra.s	@timeout		; if not yet still, branch to "timeout" handler
+
+	@L6:
 		move.b	(a1),d0			; store packet fragment in d0
-		or.l	d0,d0			; wait 8 cycles
+	;	or.l	d0,d0			; wait 8 cycles
+		andi.b	#$F,d0			; get lower nybble of packet fragment
 		move.b	#0,(a1)			; advance to next phase of the packet
-		eor.l	d0,d0			; clear contents of d0 (and wait 8 cycles)
+	;	or.l	d0,d0			; wait 8 cycles
+		cmpi.b	#$F,d0			; test the contents of the packet nybble
+		bne.s	@not_mouse		; if packet nybble aren't 'F', branch to "not mouse" handler
+		moveq	#0,d0			; clear contents of d0
 
 	@L7:
 		btst	#4,(a1)			; test if handshake is complete
-		bne.s	@L7			; if not, try again
+	;	bne.s	@L7			; if not, try again
+		beq.s	@L8			; if so, branch
+		dbf	d1,@L7			; if not, decrement timeout counter & try again
+		bra.s	@timeout		; if not yet still, branch to "timeout" handler
+
+	@L8:
 		move.b	(a1),d0			; [YO XO YS XS]
 		lsl.w	#8,d0			; [0- 0- 0- 0- | 0- 0- 0- 0- || 0- 0- 0- 0- | 0- 0- 0- 0- || 0- 0- 0- 0- | YO XO YS XS || 0- 0- 0- 0- | 0- 0- 0- 0-]
 		move.b	#$20,(a1)		; advance to next phase of the packet
@@ -1015,7 +1038,28 @@ ReadMouse:
 
 	@L9:
 		btst	#4,(a1)			; test if handshake is complete
-		beq.s	@L9			; if not, try again
+	;	beq.s	@L9			; if not, try again
+		bne.s	@L10			; if so, branch
+		dbf	d1,@L9			; if not, decrement timeout counter & try again
+	;	bra.s	@timeout		; if not yet still, branch to "timeout" handler
+; ---------------------------------------------------------------------------
+@timeout:
+		move.b	#$60,(a1)		; reset to first phase of the packet
+		or.l	d0,d0			; wait 8 cycles
+
+	@To0:
+		btst	#4,(a1)			; test if handshake is complete
+		beq.s	@To0			; if not, try again
+
+	@errexit:
+		enable_ints
+		clr.w	(v_mouse_inputy).w
+		clr.w	(v_mouse_inputx).w
+		clr.w	(a0)
+		moveq	#$FFFFFFFF,d0		; set input status to "input error"
+		rts
+; ---------------------------------------------------------------------------
+	@L10:
 		move.b	(a1),d0			; [S- M- R- L-]
 		lsl.b	#4,d0			; [0- 0- 0- 0- | 0- 0- 0- 0- || 0- 0- 0- 0- | 0- 0- 0- 0- || 0- 0- 0- 0- | YO XO YS XS || S- M- R- L- | 0- 0- 0- 0-]
 		lsl.l	#4,d0			; [0- 0- 0- 0- | 0- 0- 0- 0- || 0- 0- 0- 0- | 0- 0- 0- 0- || YO XO YS XS | S- M- R- L- || 0- 0- 0- 0- | 0- 0- 0- 0-]
@@ -1024,7 +1068,12 @@ ReadMouse:
 
 	@L11:
 		btst	#4,(a1)			; test if handshake is complete
-		bne.s	@L11			; if not, try again
+	;	bne.s	@L11			; if not, try again
+		beq.s	@L12			; if so, branch
+		dbf	d1,@L11			; if not, decrement timeout counter & try again
+		bra.s	@timeout		; if not yet still, branch to "timeout" handler
+
+	@L12:
 		move.b	(a1),d0			; [X7 X6 X5 X4]
 		lsl.b	#4,d0			; [0- 0- 0- 0- | 0- 0- 0- 0- || 0- 0- 0- 0- | 0- 0- 0- 0- || YO XO YS XS | S- M- R- L- || X7 X6 X5 X4 | 0- 0- 0- 0-]
 		lsl.l	#4,d0			; [0- 0- 0- 0- | 0- 0- 0- 0- || 0- 0- 0- 0- | YO XO YS XS || S- M- R- L- | X7 X6 X5 X4 || 0- 0- 0- 0- | 0- 0- 0- 0-]
@@ -1033,7 +1082,12 @@ ReadMouse:
 
 	@L13:
 		btst	#4,(a1)			; test if handshake is complete
-		beq.s	@L13			; if not, try again
+	;	beq.s	@L13			; if not, try again
+		bne.s	@L14			; if so, branch
+		dbf	d1,@L13			; if not, decrement timeout counter & try again
+		bra.s	@timeout		; if not yet still, branch to "timeout" handler
+
+	@L14:
 		move.b	(a1),d0			; [X3 X2 X1 X0]
 		lsl.b	#4,d0			; [0- 0- 0- 0- | 0- 0- 0- 0- || 0- 0- 0- 0- | YO XO YS XS || S- M- R- L- | X7 X6 X5 X4 || X3 X2 X1 X0 | 0- 0- 0- 0-]
 		lsl.l	#4,d0			; [0- 0- 0- 0- | 0- 0- 0- 0- || YO XO YS XS | S- M- R- L- || X7 X6 X5 X4 | X3 X2 X1 X0 || 0- 0- 0- 0- | 0- 0- 0- 0-]
@@ -1042,7 +1096,12 @@ ReadMouse:
 
 	@L15:
 		btst	#4,(a1)			; test if handshake is complete
-		bne.s	@L15			; if not, try again
+	;	bne.s	@L15			; if not, try again
+		beq.s	@L16			; if so, branch
+		dbf	d1,@L15			; if not, decrement timeout counter & try again
+		bra.s	@timeout		; if not yet still, branch to "timeout" handler
+
+	@L16:
 		move.b	(a1),d0			; [Y7 Y6 Y5 Y4]
 		lsl.b	#4,d0			; [0- 0- 0- 0- | 0- 0- 0- 0- || YO XO YS XS | S- M- R- L- || X7 X6 X5 X4 | X3 X2 X1 X0 || Y7 Y6 Y5 Y4 | 0- 0- 0- 0-]
 		lsl.l	#4,d0			; [0- 0- 0- 0- | YO XO YS XS || S- M- R- L- | X7 X6 X5 X4 || X3 X2 X1 X0 | Y7 Y6 Y5 Y4 || 0- 0- 0- 0- | 0- 0- 0- 0-]
@@ -1051,11 +1110,21 @@ ReadMouse:
 
 	@L17:
 		btst	#4,(a1)			; test if handshake is complete
-		beq.s	@L17			; if not, try again
+	;	beq.s	@L17			; if not, try again
+		bne.s	@L18			; if so, branch
+		dbf	d1,@L17			; if not, decrement timeout counter & try again
+		bra.s	@timeout		; if not yet still, branch to "timeout" handler
+
+	@L18:
 		move.b	(a1),d0			; [Y3 Y2 Y1 Y0]
 		lsl.b	#4,d0			; [0- 0- 0- 0- | YO XO YS XS || S- M- R- L- | X7 X6 X5 X4 || X3 X2 X1 X0 | Y7 Y6 Y5 Y4 || Y3 Y2 Y1 Y0 | 0- 0- 0- 0-]
 		lsr.l	#4,d0			; [0- 0- 0- 0- | 0- 0- 0- 0- || YO XO YS XS | S- M- R- L- || X7 X6 X5 X4 | X3 X2 X1 X0 || Y7 Y6 Y5 Y4 | Y3 Y2 Y1 Y0]
 		move.b	#$60,(a1)		; reset to first phase of the packet
+		or.l	d0,d0			; wait 8 cycles
+
+	@L19:
+		btst	#4,(a1)			; test if handshake is complete
+		beq.s	@L19			; if not, try again
 
 		enable_ints
 		move.l	d0,(v_mouse_raw).w
@@ -1112,9 +1181,10 @@ ReadMouse:
 
 		btst	#3,d1
 		beq.s	@exit
-		bset	#bitStart,(v_jpadhold1).w
+		bset	#bitStart,(v_jpadpress1).w
 
 	@exit:
+		moveq	#1,d0		; set input status to "input success"
 		rts
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
