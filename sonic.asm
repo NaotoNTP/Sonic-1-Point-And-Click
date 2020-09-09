@@ -6479,9 +6479,18 @@ Obj_Index:
 
 BuildCursor:
 		move.b	(v_mouse_hurttimer).w,d7
+		bmi.s	@hasinvinc
 		lsr.b	#3,d7
 		bcs.s	@nodisplay
+		bra.s	@display
 
+	@hasinvinc:
+		cmpi.b	#id_Special,(v_gamemode).w
+		beq.s	@display
+		btst.b	#0,(v_vbla_count+3).w
+		beq.s	@nodisplay
+
+	@display:
 		move.w	(v_mouse_screenx).w,d2
 		move.w	(v_mouse_screeny).w,d3
 

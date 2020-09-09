@@ -103,11 +103,12 @@ SBall_Main:	; Routine 0
 		move.b	#1,obFrame(a0)	; use different	frame
 
 SBall_Move:	; Routine 2
+		tst.b	obColType(a0)
+		beq.s	@nomouse
 		moveq	#8,d2
 		moveq	#$10,d3
 		cmpi.b	#1,obFrame(a0)
 		blo.s	@syzcol
-		bhi.s	@nomouse
 		add.w	d2,d2
 		add.w	d3,d3
 @syzcol:
@@ -187,11 +188,12 @@ SBall_Move:	; Routine 2
 ; ===========================================================================
 
 SBall_Display:	; Routine 4
+		tst.b	obColType(a0)
+		beq.s	@nomouse
 		moveq	#8,d2
 		moveq	#$10,d3
 		cmpi.b	#1,obFrame(a0)
 		blo.s	@syzcol
-		bhi.s	@nomouse
 		add.w	d2,d2
 		add.w	d3,d3
 @syzcol:
@@ -211,5 +213,5 @@ SBall_Display:	; Routine 4
 		sfx	sfx_SpikeHit
 		move.b	#$78,(v_mouse_hurttimer).w
 
-@nomouse:
+	@nomouse:
 		bra.w	DisplaySprite

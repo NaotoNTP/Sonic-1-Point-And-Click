@@ -119,7 +119,7 @@ loc_19248:
 		move.b	#$F,obColType(a0)
 
 locret_19256:
-		rts	
+		rts
 ; ===========================================================================
 
 loc_19258:
@@ -128,7 +128,7 @@ loc_19258:
 		move.b	#6,ob2ndRout(a0)
 		move.w	#$B4,$3C(a0)
 		clr.w	obVelX(a0)
-		rts	
+		rts
 ; ===========================================================================
 
 loc_19270:
@@ -158,6 +158,24 @@ loc_1929E:
 		neg.w	d0
 
 loc_192AE:
+		moveq	#$10,d2
+		moveq	#$20,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		bra.s	@clicked
+
+	@nomouse:
 		subq.w	#1,d0
 		bgt.s	loc_192E8
 		tst.b	$3D(a0)
@@ -167,6 +185,8 @@ loc_192AE:
 		asr.w	#5,d1
 		cmp.b	$34(a0),d1
 		bne.s	loc_192E8
+
+	@clicked:
 		moveq	#0,d0
 		move.b	$34(a0),d0
 		asl.w	#5,d0
@@ -357,7 +377,7 @@ loc_1946A:
 		dbf	d0,Obj75_FindLoop
 
 locret_19472:
-		rts	
+		rts
 ; End of function Obj75_FindBlocks
 
 ; ===========================================================================
@@ -465,12 +485,12 @@ off_19546:	dc.w loc_19574-off_19546, loc_19574-off_19546
 
 loc_19552:
 		moveq	#$A,d1
-		rts	
+		rts
 ; ===========================================================================
 
 loc_19556:
 		moveq	#6,d1
-		rts	
+		rts
 ; ===========================================================================
 
 loc_1955A:
@@ -494,7 +514,7 @@ loc_19574:
 		tst.b	obColType(a1)
 		bne.s	loc_1957E
 		moveq	#5,d1
-		rts	
+		rts
 ; ===========================================================================
 
 loc_1957E:
@@ -503,7 +523,7 @@ loc_1957E:
 		moveq	#4,d1
 
 locret_19588:
-		rts	
+		rts
 ; ===========================================================================
 
 Obj75_FlameMain:; Routine 6

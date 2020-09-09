@@ -29,10 +29,34 @@ Roll_Main:	; Routine 0
 		move.b	#$10,obActWid(a0)
 
 	locret_E052:
-		rts	
+		rts
 ; ===========================================================================
 
 Roll_Action:	; Routine 2
+		moveq	#8,d2
+		moveq	#$10,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		moveq	#$20,d2
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d3,d1
+		cmp.w	d2,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		move.b	#id_ExplosionItem,0(a0) ; change object to explosion
+		move.b	#0,obRoutine(a0)
+		addq.l	#4,sp
+		moveq	#10,d0
+		jsr	AddPoints
+		jmp	ExplosionItem
+
+	@nomouse:
 		moveq	#0,d0
 		move.b	ob2ndRout(a0),d0
 		move.w	Roll_Index2(pc,d0.w),d1
@@ -79,7 +103,7 @@ Roll_RollChk:
 
 loc_E0D2:
 		addq.l	#4,sp
-		rts	
+		rts
 ; ===========================================================================
 
 Roll_RollNoChk:
@@ -92,12 +116,12 @@ Roll_RollNoChk:
 		move.b	#$8E,obColType(a0)
 
 locret_E0F6:
-		rts	
+		rts
 ; ===========================================================================
 
 loc_E0F8:
 		addq.b	#2,ob2ndRout(a0)
-		rts	
+		rts
 ; ===========================================================================
 
 Roll_ChkJump:
@@ -109,7 +133,7 @@ Roll_ChkJump:
 		cmpi.w	#$C,d1
 		bge.s	Roll_Jump
 		add.w	d1,obY(a0)
-		rts	
+		rts
 ; ===========================================================================
 
 Roll_Jump:
@@ -119,7 +143,7 @@ Roll_Jump:
 		move.w	#-$600,obVelY(a0)	; move Roller vertically
 
 locret_E12E:
-		rts	
+		rts
 ; ===========================================================================
 
 Roll_MatchFloor:
@@ -134,7 +158,7 @@ Roll_MatchFloor:
 		move.w	#0,obVelY(a0)
 
 locret_E150:
-		rts	
+		rts
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -154,5 +178,5 @@ Roll_Stop:
 		bset	#7,$32(a0)
 
 locret_E188:
-		rts	
+		rts
 ; End of function Roll_Stop

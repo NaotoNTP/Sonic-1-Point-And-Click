@@ -59,7 +59,7 @@ Ledge_Touch:	; Routine 2
 		move.w	#$30,d1
 		lea	(Ledge_SlopeData).l,a2
 		bsr.w	SlopeObject
-		bra.w	RememberState
+		jmp	RememberState
 ; ===========================================================================
 
 Ledge_Collapse:	; Routine 4
@@ -78,7 +78,7 @@ Ledge_WalkOff:	; Routine $A
 		lea	(Ledge_SlopeData).l,a2
 		move.w	obX(a0),d2
 		bsr.w	SlopeObject2
-		bra.w	RememberState
+		jmp	RememberState
 ; End of function Ledge_WalkOff
 
 ; ===========================================================================

@@ -114,15 +114,15 @@ enable_ints:	macro
 ; ---------------------------------------------------------------------------
 
 jhi:		macro loc
-		bls.s	@nojump
+		bls.s	\@
 		jmp	loc
-	@nojump:
+	\@:
 		endm
 
 jcc:		macro loc
-		bcs.s	@nojump
+		bcs.s	\@
 		jmp	loc
-	@nojump:
+	\@:
 		endm
 
 jhs:		macro loc
@@ -130,15 +130,15 @@ jhs:		macro loc
 		endm
 
 jls:		macro loc
-		bhi.s	@nojump
+		bhi.s	\@
 		jmp	loc
-	@nojump:
+	\@:
 		endm
 
 jcs:		macro loc
-		bcc.s	@nojump
+		bcc.s	\@
 		jmp	loc
-	@nojump:
+	\@:
 		endm
 
 jlo:		macro loc
@@ -146,51 +146,51 @@ jlo:		macro loc
 		endm
 
 jeq:		macro loc
-		bne.s	@nojump
+		bne.s	\@
 		jmp	loc
-	@nojump:
+	\@:
 		endm
 
 jne:		macro loc
-		beq.s	@nojump
+		beq.s	\@
 		jmp	loc
-	@nojump:
+	\@:
 		endm
 
 jgt:		macro loc
-		ble.s	@nojump
+		ble.s	\@
 		jmp	loc
-	@nojump:
+	\@:
 		endm
 
 jge:		macro loc
-		blt.s	@nojump
+		blt.s	\@
 		jmp	loc
-	@nojump:
+	\@:
 		endm
 
 jle:		macro loc
-		bgt.s	@nojump
+		bgt.s	\@
 		jmp	loc
-	@nojump:
+	\@:
 		endm
 
 jlt:		macro loc
-		bge.s	@nojump
+		bge.s	\@
 		jmp	loc
-	@nojump:
+	\@:
 		endm
 
 jpl:		macro loc
-		bmi.s	@nojump
+		bmi.s	\@
 		jmp	loc
-	@nojump:
+	\@:
 		endm
 
 jmi:		macro loc
-		bpl.s	@nojump
+		bpl.s	\@
 		jmp	loc
-	@nojump:
+	\@:
 		endm
 
 ; ---------------------------------------------------------------------------

@@ -113,8 +113,8 @@ Ring_Animate:	; Routine 2
 		bsr.w	Obj07_Move
 		bsr.w	DisplaySprite
 		out_of_range.w	Ring_Delete,obX(a0)
-		rts	
-		
+		rts
+
 	@checkhover:
 		moveq	#8,d2
 		moveq	#$10,d3
@@ -130,7 +130,10 @@ Ring_Animate:	; Routine 2
 		bcc.s	@nohover
 		bset.b	#0,(v_mouse_gfxindex).w
 		tst.b	(v_mouse_hurttimer).w
+		bmi.s	@attract
 		bne.s	@nohover
+
+	@attract:
 		lea	(v_objstate).w,a2
 		moveq	#0,d0
 		move.b	obRespawnNo(a0),d0
@@ -138,11 +141,11 @@ Ring_Animate:	; Routine 2
 		bset	d1,2(a2,d0.w)
 		sfx	sfx_UnkA2
 		st	obStatus(a0)
-	
+
 	@nohover:
 		bsr.w	DisplaySprite
 		out_of_range.s	Ring_Delete,$32(a0)
-		rts	
+		rts
 ; ===========================================================================
 
 Ring_Collect:	; Routine 4
@@ -306,7 +309,7 @@ RLoss_Bounce:	; Routine 2
 		bpl.s	@checkhover
 		bsr.w	Obj07_Move
 		bra.w	@chkdel
-		
+
 	@checkhover:
 		cmpi.b	#239,(v_ani3_time).w
 		bhi.s	@noclick
@@ -329,8 +332,8 @@ RLoss_Bounce:	; Routine 2
 		beq.s	@noclick
 		sfx	sfx_UnkA2
 		st	obStatus(a0)
-		
-	
+
+
 	@noclick:
 		bsr.w	SpeedToPos
 		addi.w	#$18,obVelY(a0)
@@ -339,7 +342,7 @@ RLoss_Bounce:	; Routine 2
 		add.b	d7,d0
 		andi.b	#3,d0
 		bne.s	@chkdel
-		
+
 		move.w	obX(a0),d3
 		move.w	obY(a0),d2
 	;	move.b	obHeight(a0),d0
@@ -352,7 +355,7 @@ RLoss_Bounce:	; Routine 2
 		move.w	#0,d6
 		moveq	#$D,d5
 		jsr	(RingFindFloor).l
-		
+
 		tst.w	d1
 		bpl.s	@chkdel
 		add.w	d1,obY(a0)
@@ -360,7 +363,7 @@ RLoss_Bounce:	; Routine 2
 		asr.w	#2,d0
 		sub.w	d0,obVelY(a0)
 		neg.w	obVelY(a0)
-		
+
 	@chkdel:
 		tst.b	(v_ani3_time).w
 		beq.s	RLoss_Delete
@@ -385,7 +388,7 @@ RLoss_Sparkle:	; Routine 6
 
 RLoss_Delete:	; Routine 8
 		bra.w	DeleteObject
-		
+
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Ring Spawn Array

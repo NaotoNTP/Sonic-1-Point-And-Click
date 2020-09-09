@@ -22,6 +22,32 @@ Bump_Main:	; Routine 0
 		move.b	#$D7,obColType(a0)
 
 Bump_Hit:	; Routine 2
+		moveq	#$10,d2
+		moveq	#$20,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		jsr	RandomNumber
+		jsr	CalcSine
+		muls.w	#-$700,d1
+		asr.l	#8,d1
+		move.w	d1,(v_mouse_velx).w	; bounce cursor away
+		muls.w	#-$700,d0
+		asr.l	#8,d0
+		move.w	d0,(v_mouse_vely).w	; bounce cursor away
+		bra.s	@clicked
+
+	@nomouse:
 		tst.b	obColProp(a0)	; has Sonic touched the	bumper?
 		beq.w	@display	; if not, branch
 		clr.b	obColProp(a0)
@@ -42,6 +68,8 @@ Bump_Hit:	; Routine 2
 		bclr	#4,obStatus(a1)
 		bclr	#5,obStatus(a1)
 		clr.b	$3C(a1)
+
+	@clicked:
 		move.b	#1,obAnim(a0)	; use "hit" animation
 		sfx	sfx_Bumper	; play bumper sound
 		lea	(v_objstate).w,a2

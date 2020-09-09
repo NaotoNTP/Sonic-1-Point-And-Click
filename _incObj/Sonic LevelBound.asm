@@ -31,18 +31,22 @@ Sonic_LevelBound:
 		addi.w	#$E0,d0
 		cmp.w	obY(a0),d0	; has Sonic touched the	bottom boundary?
 		blt.s	@bottom		; if yes, branch
-		rts	
+		rts
 ; ===========================================================================
 
 @bottom:
 		cmpi.w	#(id_SBZ<<8)+1,(v_zone).w ; is level SBZ2 ?
-		bne.w	KillSonic	; if not, kill Sonic
+		bne.s	@kill		; if not, kill Sonic
 		cmpi.w	#$2000,(v_player+obX).w
-		bcs.w	KillSonic
+		bcs.s	@kill
 		clr.b	(v_lastlamp).w	; clear	lamppost counter
 		move.w	#1,(f_restart).w ; restart the level
 		move.w	#(id_LZ<<8)+3,(v_zone).w ; set level to SBZ3 (LZ4)
-		rts	
+		rts
+
+@kill:
+		jmp	KillSonic
+
 ; ===========================================================================
 
 @sides:
@@ -51,4 +55,5 @@ Sonic_LevelBound:
 		move.w	#0,obVelX(a0)	; stop Sonic moving
 		move.w	#0,obInertia(a0)
 		bra.s	@chkbottom
+
 ; End of function Sonic_LevelBound
