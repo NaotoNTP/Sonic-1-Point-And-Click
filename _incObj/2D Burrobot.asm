@@ -28,6 +28,28 @@ Burro_Main:	; Routine 0
 		move.b	#2,obAnim(a0)
 
 Burro_Action:	; Routine 2
+		moveq	#8,d2
+		moveq	#$10,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		moveq	#$13,d2
+		moveq	#$26,d3
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		sfx	sfx_Switch
+		bchg.b	#0,obStatus(a0)
+		neg.w	obVelX(a0)
+
+	@nomouse:
 		moveq	#0,d0
 		move.b	ob2ndRout(a0),d0
 		move.w	@index(pc,d0.w),d1
@@ -54,7 +76,7 @@ Burro_Action:	; Routine 2
 		neg.w	obVelX(a0)	; change direction the Burrobot	is moving
 
 	@nochg:
-		rts	
+		rts
 ; ===========================================================================
 
 Burro_Move:
@@ -73,13 +95,13 @@ loc_AD6A:
 		jsr	(ObjFloorDist2).l
 		cmpi.w	#$C,d1
 		bge.s	loc_AD84
-		rts	
+		rts
 ; ===========================================================================
 
 loc_AD78:
 		jsr	(ObjFloorDist).l
 		add.w	d1,obY(a0)
-		rts	
+		rts
 ; ===========================================================================
 
 loc_AD84:
@@ -89,14 +111,14 @@ loc_AD84:
 		move.w	#59,burro_timedelay(a0)
 		move.w	#0,obVelX(a0)
 		move.b	#0,obAnim(a0)
-		rts	
+		rts
 ; ===========================================================================
 
 loc_ADA4:
 		addq.b	#2,ob2ndRout(a0)
 		move.w	#-$400,obVelY(a0)
 		move.b	#2,obAnim(a0)
-		rts	
+		rts
 ; ===========================================================================
 
 Burro_Jump:
@@ -115,7 +137,7 @@ Burro_Jump:
 		bsr.w	Burro_ChkSonic2
 
 locret_ADF0:
-		rts	
+		rts
 ; ===========================================================================
 
 Burro_ChkSonic:
@@ -134,7 +156,7 @@ Burro_ChkSonic:
 		move.w	#-$400,obVelY(a0)
 
 locret_AE20:
-		rts	
+		rts
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -151,5 +173,5 @@ Burro_ChkSonic2:
 
 loc_AE40:
 		cmp.w	d2,d0
-		rts	
+		rts
 ; End of function Burro_ChkSonic2
