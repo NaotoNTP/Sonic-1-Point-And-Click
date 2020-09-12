@@ -3487,7 +3487,7 @@ GM_Special:
 		move.b	#id_SonicSpecial,(v_player).w ; load special stage Sonic object
 		bsr.w	PalCycle_SS
 		clr.w	(v_ssangle).w	; set stage angle to "upright"
-		move.w	#$40,(v_ssrotate).w ; set stage rotation speed
+		move.w	#$38,(v_ssrotate).w ; set stage rotation speed	; NTP
 		music	mus_SS		; play special stage BG	music
 		move.w	#0,(v_btnpushtime1).w
 		lea	(DemoDataPtr).l,a1
@@ -6478,17 +6478,12 @@ Obj_Index:
 		include	"_incObj\sub DeleteObject.asm"
 
 BuildCursor:
+		cmpi.b	#id_Special,(v_gamemode).w
+		beq.s	@nodisplay
 		move.b	(v_mouse_hurttimer).w,d7
-		bmi.s	@hasinvinc
+		bmi.s	@display
 		lsr.b	#3,d7
 		bcs.s	@nodisplay
-		bra.s	@display
-
-	@hasinvinc:
-		cmpi.b	#id_Special,(v_gamemode).w
-		beq.s	@display
-		btst.b	#0,(v_vbla_count+3).w
-		beq.s	@nodisplay
 
 	@display:
 		move.w	(v_mouse_screenx).w,d2
@@ -8228,7 +8223,7 @@ SS_ShowLayout:
 		move.w	d5,-(sp)
 		lea	($FFFF8000).w,a1
 		move.b	(v_ssangle).w,d0
-		andi.b	#$FC,d0
+	;	andi.b	#$FC,d0
 		jsr	(CalcSine).l
 		move.w	d0,d4
 		move.w	d1,d5

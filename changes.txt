@@ -1,0 +1,57 @@
+General Object Changes:
+- Sonic: Has new abilities, ellaborated upon earlier.
+- Rings: Magnetized upon mouseover. Dropped rings require a click to be magnetized.
+- Monitors: Can be picked up & thrown at the ground to smash them.
+- Big Ring: Explodes into smaller rings.
+- Hidden Bonus: Mouseover to reveal.
+- Checkpoints: Must mouseover to activate.
+- Capsule & Signpost: Can optionally click to activate.
+- Springs & Bumpers: Clicking on bounces the cursor away.
+- Smashable Terrain: Clicking or holding while mouseover smashes them to pieces.
+- Collapsing Terrain: Mouseover causes collapse.
+- Switch: Can optionally click to activate.
+- Most Spiked Objects: Spikes, Spiked Balls, & most other pointy objects stun the cursor upon mouseover for a bit unless stated otherwise. Notable exceptions include GHZ spiked logs, MZ spiked stompers & LZ harpoons, which do nothing.
+
+GHZ Object Changes:
+- Motobug: Clicking on changes their direction.
+- Buzzbomber & Crabmeat: Clicking on makes them fire their projectiles
+- Leon & Newtron: Mouseover reveals, clicking on destroys
+- Chopper: Clicking on bounces them in the air gently.
+- GHZ Boss: Clicking & holding the wrecking ball holds it in place.
+
+MZ Object Changes:
+- Sinking Grass Platforms: Mouseover causes them to dip. Clicking on the fire that spreads across them stuns the cursor.
+- Projectile Fireballs: Clicking on extinguishes them but also stuns the cursor.
+- Basaran: Click on to destroy.
+- Caterkiller: Clicking on causes them to break apart.
+- MZ Boss: Can extinguish his fireballs too.
+
+SYZ Object Changes:
+- Roller: Click on to destroy.
+- Yadrin: Clicking on stuns the cursor.
+- SYZ Boss: Clicking on activates his attack.
+
+LZ Object Changes:
+- Burrobot: Clicking on changes their direction.
+- Jaws: Click on to destroy.
+- Orbinaut: Spiked balls stun the cursor upon mouseover, but the badnik itself can be clicked to destroy.
+- Gargoyle Fireball: Clicking on extinguishes them but also stuns the cursor.
+- Rising Platforms/Falling Blocks: Can optionally click to activate.
+- Large Air Bubbles: Click on to pop.
+- LZ Boss: Click on to play damage animation.
+
+SLZ Object Changes:
+- Bombs: Mouseover starts the fuse, clicking on causes them to explode with no shrapnel but also stuns the cursor.
+- Fans: Clicking toggles them on or off.
+- Staircase & Elevators: Can optionally click to activate.
+- SLZ Boss: Clicking or holding while mouseover on the bombs stuns the cursor, but lets them bounce in the air, giving them an extra bit of hang time to hit Eggman.
+
+SBZ Object Changes:
+- Ball Hog: Clicking on releases a bomb, clicking the bomb makes the bomb explode & stuns the cursor.
+- Hidden Blocks: Mouseover makes them visible
+- Crushers: Clicking or holding while mouseover freezes them.
+- Flamethrowers & Zappers: Mouseover stuns the cursor.
+- FZ Boss: Electrical energy balls can be clicked to disapate, but stuns the cursor.
+- Escaping Eggman: Clicking on while in the ship defeats him.
+
+Special Stages are now manually rotated by moving the mouse left & right. Hitting the wall that changes rotation direction inverts the directional controls & hitting the up or down tiles increases or decreases the rotation sensitivity respectively.
