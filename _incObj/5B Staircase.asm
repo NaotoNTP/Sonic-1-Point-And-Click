@@ -93,48 +93,95 @@ loc_10F92:
 		move.b	#1,$36(a2)
 
 locret_10FA0:
-		rts	
+		rts
 ; ===========================================================================
 Stair_TypeIndex:dc.w Stair_Type00-Stair_TypeIndex
 		dc.w Stair_Type01-Stair_TypeIndex
 		dc.w Stair_Type02-Stair_TypeIndex
-		dc.w Stair_Type01-Stair_TypeIndex
 ; ===========================================================================
 
 Stair_Type00:
 		tst.w	$34(a0)
 		bne.s	loc_10FC0
+
+		moveq	#$40,d2
+		move.w	d2,d3
+		add.w	d3,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		subi.w	#$30,d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		moveq	#$10,d2
+		moveq	#$20,d3
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		sfx	sfx_Switch
+		move.w	#$1E,$34(a0)
+
+	@nomouse:
 		cmpi.b	#1,$36(a0)
 		bne.s	locret_10FBE
 		move.w	#$1E,$34(a0)
 
 locret_10FBE:
-		rts	
+		rts
 ; ===========================================================================
 
 loc_10FC0:
 		subq.w	#1,$34(a0)
 		bne.s	locret_10FBE
 		addq.b	#1,obSubtype(a0) ; add 1 to type
-		rts	
+		rts
 ; ===========================================================================
 
 Stair_Type02:
 		tst.w	$34(a0)
 		bne.s	loc_10FE0
+
+		moveq	#$40,d2
+		move.w	d2,d3
+		add.w	d3,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		subi.w	#$30,d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		moveq	#$10,d2
+		moveq	#$20,d3
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		sfx	sfx_Switch
+		move.w	#$3C,$34(a0)
+
+	@nomouse:
 		tst.b	$36(a0)
 		bpl.s	locret_10FDE
 		move.w	#$3C,$34(a0)
 
 locret_10FDE:
-		rts	
+		rts
 ; ===========================================================================
 
 loc_10FE0:
 		subq.w	#1,$34(a0)
 		bne.s	loc_10FEC
-		addq.b	#1,obSubtype(a0) ; add 1 to type
-		rts	
+		subq.b	#1,obSubtype(a0) ; add 1 to type
+		rts
 ; ===========================================================================
 
 loc_10FEC:
@@ -149,7 +196,7 @@ loc_10FEC:
 		move.b	d0,(a1)+
 		eori.b	#1,d0
 		move.b	d0,(a1)+
-		rts	
+		rts
 ; ===========================================================================
 
 Stair_Type01:
@@ -173,5 +220,5 @@ Stair_Type01:
 		move.b	d1,(a1)+
 
 locret_11038:
-		rts	
-		rts	
+		rts
+

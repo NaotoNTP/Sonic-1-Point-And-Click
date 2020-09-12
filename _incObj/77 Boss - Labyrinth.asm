@@ -53,6 +53,24 @@ Obj77_LoadBoss:
 		dbf	d1,Obj77_Loop
 
 Obj77_ShipMain:	; Routine 2
+		moveq	#$18,d2
+		moveq	#$30,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		sf	obColType(a0)
+
+	@nomouse:
 		lea	(v_player).w,a1
 		moveq	#0,d0
 		move.b	ob2ndRout(a0),d0
@@ -111,7 +129,7 @@ loc_17F7E:
 		move.b	#$F,obColType(a0)
 
 locret_17F8C:
-		rts	
+		rts
 ; ===========================================================================
 
 loc_17F8E:
@@ -122,7 +140,7 @@ loc_17F92:
 		moveq	#100,d0
 		bsr.w	AddPoints
 		move.b	#-1,$3D(a0)
-		rts	
+		rts
 ; ===========================================================================
 
 loc_17FA0:

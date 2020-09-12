@@ -126,7 +126,7 @@ SBall_Move:	; Routine 2
 		tst.b	(v_mouse_hurttimer).w
 		bne.s	@nomouse
 		sfx	sfx_SpikeHit
-		move.b	#$78,(v_mouse_hurttimer).w
+		move.b	#$50,(v_mouse_hurttimer).w
 
 @nomouse:
 		bsr.w	@movesub
@@ -211,7 +211,7 @@ SBall_Display:	; Routine 4
 		tst.b	(v_mouse_hurttimer).w
 		bne.s	@nomouse
 		sfx	sfx_SpikeHit
-		move.b	#$78,(v_mouse_hurttimer).w
+		move.b	#$50,(v_mouse_hurttimer).w
 
 	@nomouse:
 		bra.w	DisplaySprite

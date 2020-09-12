@@ -86,7 +86,7 @@ Yad_Action:	; Routine 2
 		btst.b	#0,(v_mouse_press).w
 		beq.s	@nomouse
 		sfx	sfx_SpikeHit
-		move.b	#$78,(v_mouse_hurttimer).w
+		move.b	#$50,(v_mouse_hurttimer).w
 
 	@nomouse:
 		moveq	#0,d0

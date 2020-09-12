@@ -28,12 +28,13 @@ Bom_Main:	; Routine 0
 		move.b	obSubtype(a0),d0
 		beq.s	loc_11A3C
 		move.b	d0,obRoutine(a0)
-		rts	
+		rts
 ; ===========================================================================
 
 loc_11A3C:
 		move.b	#$9A,obColType(a0)
 		bchg	#0,obStatus(a0)
+		sf	$36(a0)
 
 Bom_Action:	; Routine 2
 		moveq	#0,d0
@@ -62,7 +63,7 @@ Bom_Action:	; Routine 2
 		neg.w	obVelX(a0)	; change direction
 
 	@noflip:
-		rts	
+		rts
 ; ===========================================================================
 
 @wait:
@@ -70,7 +71,7 @@ Bom_Action:	; Routine 2
 		subq.w	#1,bom_time(a0)	; subtract 1 from time delay
 		bmi.s	@stopwalking	; if time expires, branch
 		bsr.w	SpeedToPos
-		rts	
+		rts
 ; ===========================================================================
 
 	@stopwalking:
@@ -78,20 +79,58 @@ Bom_Action:	; Routine 2
 		move.w	#179,bom_time(a0) ; set time delay to 3 seconds
 		clr.w	obVelX(a0)	; stop walking
 		move.b	#0,obAnim(a0)	; use waiting animation
-		rts	
+		rts
 ; ===========================================================================
 
 @explode:
+		moveq	#$C,d2
+		moveq	#$18,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		clr.w	bom_time(a0)
+		move.b	#$50,(v_mouse_hurttimer).w
+		subq.b	#2,$36(a0)
+
+	@nomouse:
 		subq.w	#1,bom_time(a0)	; subtract 1 from time delay
 		bpl.s	@noexplode	; if time remains, branch
 		move.b	#id_ExplosionBomb,0(a0) ; change bomb into an explosion
 		move.b	#0,obRoutine(a0)
 
 	@noexplode:
-		rts	
+		rts
 ; ===========================================================================
 
 @chksonic:
+		moveq	#$C,d2
+		moveq	#$18,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse2
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse2
+		bset.b	#0,(v_mouse_gfxindex).w
+		move.b	#1,$36(a0)
+		bra.s	@setfuse
+
+
+	@nomouse2:
 		move.w	(v_player+obX).w,d0
 		sub.w	obX(a0),d0
 		bcc.s	@isleft
@@ -111,6 +150,7 @@ Bom_Action:	; Routine 2
 		tst.w	(v_debuguse).w
 		bne.s	@outofrange
 
+	@setfuse:
 		move.b	#4,ob2ndRout(a0)
 		move.w	#143,bom_time(a0) ; set fuse time
 		clr.w	obVelX(a0)
@@ -134,10 +174,14 @@ Bom_Action:	; Routine 2
 		move.l	a0,bom_parent(a1)
 
 @outofrange:
-		rts	
+		rts
 ; ===========================================================================
 
 Bom_Display:	; Routine 4
+		move.l	bom_parent(a0),a1
+		tst.b	$36(a1)
+		bmi.w	DeleteObject
+
 		bsr.s	loc_11B70
 		lea	(Ani_Bomb).l,a1
 		bsr.w	AnimateSprite
@@ -148,7 +192,7 @@ loc_11B70:
 		subq.w	#1,bom_time(a0)
 		bmi.s	loc_11B7C
 		bsr.w	SpeedToPos
-		rts	
+		rts
 ; ===========================================================================
 
 loc_11B7C:

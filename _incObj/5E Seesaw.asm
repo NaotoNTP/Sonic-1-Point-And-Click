@@ -28,7 +28,7 @@ See_Index:	dc.w See_Main-See_Index
 see_origX:	equ $30		; original x-axis position
 see_origY:	equ $34		; original y-axis position
 see_speed:	equ $38		; speed of collision
-see_frame:	equ $3A		; 
+see_frame:	equ $3A		;
 see_parent:	equ $3C		; RAM address of parent object
 ; ===========================================================================
 
@@ -73,7 +73,7 @@ See_Slope:	; Routine 2
 		move.w	obVelY(a1),see_speed(a0)
 		move.w	#$30,d1
 		jsr	(SlopeObject).l
-		rts	
+		rts
 ; ===========================================================================
 
 See_Slope2:	; Routine 4
@@ -89,7 +89,7 @@ See_Slope2:	; Routine 4
 		move.w	#$30,d1
 		move.w	obX(a0),d2
 		jsr	(SlopeObject2).l
-		rts	
+		rts
 ; ===========================================================================
 
 See_ChkSide:
@@ -123,7 +123,7 @@ See_ChgFrame:
 		bset	#0,obRender(a0)
 
 	@noflip:
-		rts	
+		rts
 ; ===========================================================================
 
 See_Spikeball:	; Routine 6
@@ -144,6 +144,25 @@ See_Spikeball:	; Routine 6
 		move.b	#2,see_frame(a0)
 
 See_MoveSpike:	; Routine 8
+		moveq	#8,d2
+		moveq	#$10,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		tst.b	(v_mouse_hurttimer).w
+		bne.s	@nomouse
+		sfx	sfx_SpikeHit
+		move.b	#$50,(v_mouse_hurttimer).w
+
+	@nomouse:
 		movea.l	see_parent(a0),a1
 		moveq	#0,d0
 		move.b	see_frame(a0),d0
@@ -197,10 +216,29 @@ loc_1185C:
 		move.w	d2,obX(a0)
 		clr.w	obY+2(a0)
 		clr.w	obX+2(a0)
-		rts	
+		rts
 ; ===========================================================================
 
 See_SpikeFall:	; Routine $A
+		moveq	#8,d2
+		moveq	#$10,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		tst.b	(v_mouse_hurttimer).w
+		bne.s	@nomouse
+		sfx	sfx_SpikeHit
+		move.b	#$50,(v_mouse_hurttimer).w
+
+	@nomouse:
 		tst.w	obVelY(a0)	; is spikeball falling down?
 		bpl.s	loc_1189A	; if yes, branch
 		bsr.w	ObjectFall
@@ -211,7 +249,7 @@ See_SpikeFall:	; Routine $A
 		bsr.w	ObjectFall
 
 locret_11898:
-		rts	
+		rts
 ; ===========================================================================
 
 loc_1189A:
@@ -262,7 +300,7 @@ loc_1192C:
 		subq.b	#2,obRoutine(a0)
 
 locret_11938:
-		rts	
+		rts
 ; ===========================================================================
 See_Speeds:	dc.w -8, -$1C, -$2F, -$1C, -8
 

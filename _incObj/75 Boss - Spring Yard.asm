@@ -158,8 +158,8 @@ loc_1929E:
 		neg.w	d0
 
 loc_192AE:
-		moveq	#$10,d2
-		moveq	#$20,d3
+		moveq	#$18,d2
+		moveq	#$30,d3
 		move.w	(v_mouse_worldx).w,d0
 		sub.w	obX(a0),d0
 		add.w	d2,d0

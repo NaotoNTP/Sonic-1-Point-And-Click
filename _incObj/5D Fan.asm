@@ -34,6 +34,25 @@ Fan_Delay:	; Routine 2
 		move.w	#180,fan_time(a0) ; set delay to 3 seconds
 
 @blow:
+		moveq	#$10,d2
+		moveq	#$20,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		sfx	sfx_Switch
+		bchg	#7,fan_switch(a0)
+
+	@nomouse:
 		tst.b	fan_switch(a0)	; is fan switched on?
 		bne.w	@chkdel		; if not, branch
 		lea	(v_player).w,a1
@@ -96,4 +115,4 @@ Fan_Delay:	; Routine 2
 @chkdel:
 		bsr.w	DisplaySprite
 		out_of_range	DeleteObject
-		rts	
+		rts

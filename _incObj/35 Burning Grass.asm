@@ -49,7 +49,7 @@ loc_B238:	; Routine 2
 		btst.b	#0,(v_mouse_press).w
 		beq.s	@nomouse
 		sfx	sfx_Death
-		move.b	#$78,(v_mouse_hurttimer).w
+		move.b	#$50,(v_mouse_hurttimer).w
 	;	bra.w	DeleteObject
 
 	@nomouse:
@@ -105,7 +105,7 @@ GFire_Move:	; Routine 4
 		btst.b	#0,(v_mouse_press).w
 		beq.s	@nomouse
 		sfx	sfx_Death
-		move.b	#$78,(v_mouse_hurttimer).w
+		move.b	#$50,(v_mouse_hurttimer).w
 	;	bra.w	DeleteObject
 
 	@nomouse:

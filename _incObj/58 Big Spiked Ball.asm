@@ -55,7 +55,7 @@ BBall_Move:	; Routine 2
 		tst.b	(v_mouse_hurttimer).w
 		bne.s	@nomouse
 		sfx	sfx_SpikeHit
-		move.b	#$78,(v_mouse_hurttimer).w
+		move.b	#$50,(v_mouse_hurttimer).w
 
 	@nomouse:
 		moveq	#0,d0

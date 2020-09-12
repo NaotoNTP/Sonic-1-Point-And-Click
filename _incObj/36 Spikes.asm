@@ -69,7 +69,7 @@ Spik_SideWays:
 		tst.b	(v_mouse_hurttimer).w
 		bne.s	@nomouse
 		sfx	sfx_SpikeHit
-		move.b	#$78,(v_mouse_hurttimer).w
+		move.b	#$50,(v_mouse_hurttimer).w
 		
 	@nomouse:
 		moveq	#$1B,d1
@@ -112,7 +112,7 @@ Spik_Upright:
 		tst.b	(v_mouse_hurttimer).w
 		bne.s	@nomouse
 		sfx	sfx_SpikeHit
-		move.b	#$78,(v_mouse_hurttimer).w
+		move.b	#$50,(v_mouse_hurttimer).w
 		
 	@nomouse:
 		move.w	#$11,d3

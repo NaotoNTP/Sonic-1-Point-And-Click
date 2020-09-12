@@ -26,7 +26,7 @@ Jun_Main:	; Routine 0
 ; ===========================================================================
 
 	@repeat:
-		bsr.w	FindFreeObj
+		jsr	FindFreeObj
 		bne.s	@fail
 		move.b	#id_Junction,0(a1)
 		addq.b	#4,obRoutine(a1) ; goto Jun_Display next
@@ -68,7 +68,7 @@ Jun_Action:	; Routine 2
 		move.w	obX(a1),d0
 		cmp.w	obX(a0),d0	; is Sonic to the left of the disc?
 		bcs.s	@isleft		; if yes, branch
-		moveq	#7,d1		
+		moveq	#7,d1
 
 	@isleft:
 		cmp.b	obFrame(a0),d1	; is the gap next to Sonic?
@@ -154,7 +154,7 @@ Jun_ChkSwitch:
 		move.b	d0,obFrame(a0)	; update frame
 
 	@nochange:
-		rts	
+		rts
 ; End of function Jun_ChkSwitch
 
 
@@ -175,7 +175,7 @@ Jun_ChgPos:
 		ext.w	d0
 		add.w	obY(a0),d0
 		move.w	d0,obY(a1)
-		rts	
+		rts
 
 
 @data:		dc.b -$20,    0, -$1E,   $E ; disc x-pos, Sonic x-pos, disc y-pos, Sonic y-pos

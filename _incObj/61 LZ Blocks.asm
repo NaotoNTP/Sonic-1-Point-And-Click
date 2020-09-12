@@ -80,19 +80,46 @@ LBlk_Action:	; Routine 2
 ; ===========================================================================
 
 @type00:
-		rts	
+		rts
 ; ===========================================================================
 
 @type01:
 @type03:
 		tst.w	lblk_time(a0)	; does time remain?
 		bne.s	@wait01		; if yes, branch
+		moveq	#0,d2
+		moveq	#0,d3
+		move.b	obActWid(a0),d2
+		move.w	d2,d3
+		add.w	d3,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		moveq	#0,d2
+		moveq	#0,d3
+		move.b	lblk_height(a0),d2
+		move.w	d2,d3
+		add.w	d3,d3
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		move.w	#30,lblk_time(a0) ; wait for half second
+		rts
+
+	@nomouse:
 		btst	#3,obStatus(a0)	; is Sonic standing on the object?
 		beq.s	@donothing01	; if not, branch
 		move.w	#30,lblk_time(a0) ; wait for half second
 
 	@donothing01:
-		rts	
+		rts
 ; ===========================================================================
 
 	@wait01:
@@ -100,7 +127,7 @@ LBlk_Action:	; Routine 2
 		bne.s	@donothing01	; if time remains, branch
 		addq.b	#1,obSubtype(a0) ; goto @type02 or @type04
 		clr.b	lblk_untouched(a0) ; flag block as touched
-		rts	
+		rts
 ; ===========================================================================
 
 @type02:
@@ -116,7 +143,7 @@ LBlk_Action:	; Routine 2
 		clr.b	obSubtype(a0)	; set type to 00 (non-moving type)
 
 	@nofloor02:
-		rts	
+		rts
 ; ===========================================================================
 
 @type04:
@@ -130,7 +157,7 @@ LBlk_Action:	; Routine 2
 		clr.b	obSubtype(a0)	; set type to 00 (non-moving type)
 
 	@noceiling04:
-		rts	
+		rts
 ; ===========================================================================
 
 @type05:
@@ -140,7 +167,7 @@ LBlk_Action:	; Routine 2
 		clr.b	lblk_untouched(a0)
 
 	@notouch05:
-		rts	
+		rts
 ; ===========================================================================
 
 @type07:
@@ -160,7 +187,7 @@ LBlk_Action:	; Routine 2
 		sub.w	d1,obY(a0)	; stop block
 
 	@noceiling07:
-		rts	
+		rts
 ; ===========================================================================
 
 @fall07:
@@ -177,7 +204,7 @@ LBlk_Action:	; Routine 2
 		add.w	d1,obY(a0)
 
 	@stop07:
-		rts	
+		rts
 ; ===========================================================================
 
 loc_12180:
@@ -206,4 +233,4 @@ loc_121A6:
 		move.w	d0,obY(a0)
 
 locret_121C0:
-		rts	
+		rts

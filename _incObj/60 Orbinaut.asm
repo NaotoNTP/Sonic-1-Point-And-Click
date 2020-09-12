@@ -79,10 +79,33 @@ Orb_Main:	; Routine 0
 		neg.w	obVelX(a0)	; move orbinaut	to the right
 
 	@noflip2:
-		rts	
+		rts
 ; ===========================================================================
 
 Orb_ChkSonic:	; Routine 2
+		moveq	#8,d2
+		moveq	#$10,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		move.b	#id_ExplosionItem,0(a0) ; change object to explosion
+		move.b	#0,obRoutine(a0)
+		addq.l	#4,sp
+		moveq	#10,d0
+		jsr	AddPoints
+		jmp	ExplosionItem
+
+	@nomouse:
 		move.w	(v_player+obX).w,d0
 		sub.w	obX(a0),d0	; is Sonic to the right of the orbinaut?
 		bcc.s	@isright	; if yes, branch
@@ -105,11 +128,34 @@ Orb_ChkSonic:	; Routine 2
 
 @animate:
 		lea	(Ani_Orb).l,a1
-		bsr.w	AnimateSprite
+		jsr	AnimateSprite
 		bra.w	Orb_ChkDel
 ; ===========================================================================
 
 Orb_Display:	; Routine 4
+		moveq	#8,d2
+		moveq	#$10,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		move.b	#id_ExplosionItem,0(a0) ; change object to explosion
+		move.b	#0,obRoutine(a0)
+		addq.l	#4,sp
+		moveq	#10,d0
+		jsr	AddPoints
+		jmp	ExplosionItem
+
+	@nomouse:
 		bsr.w	SpeedToPos
 
 Orb_ChkDel:
@@ -144,6 +190,25 @@ Orb_Delete:
 ; ===========================================================================
 
 Orb_MoveOrb:	; Routine 6
+		moveq	#8,d2
+		moveq	#$10,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		tst.b	(v_mouse_hurttimer).w
+		bne.s	@nomouse
+		sfx	sfx_SpikeHit
+		move.b	#$50,(v_mouse_hurttimer).w
+
+	@nomouse:
 		movea.l	orb_parent(a0),a1
 		cmpi.b	#id_Orbinaut,0(a1) ; does parent object still exist?
 		bne.w	DeleteObject	; if not, delete
@@ -181,6 +246,25 @@ Orb_MoveOrb:	; Routine 6
 ; ===========================================================================
 
 Orb_ChkDel2:	; Routine 8
+		moveq	#8,d2
+		moveq	#$10,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		tst.b	(v_mouse_hurttimer).w
+		bne.s	@nomouse
+		sfx	sfx_SpikeHit
+		move.b	#$50,(v_mouse_hurttimer).w
+
+	@nomouse:
 		bsr.w	SpeedToPos
 		tst.b	obRender(a0)
 		bpl.w	DeleteObject

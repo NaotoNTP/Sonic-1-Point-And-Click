@@ -226,7 +226,7 @@ loc_18886:	; Routine 4
 
 	loc_mousecont:
 		sfx	sfx_Death
-		move.b	#$78,(v_mouse_hurttimer).w
+		move.b	#$50,(v_mouse_hurttimer).w
 		move.b	#1,obAnim(a0)
 		bra.s	Obj74_Animate
 

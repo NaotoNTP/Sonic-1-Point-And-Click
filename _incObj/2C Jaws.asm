@@ -35,6 +35,31 @@ Jaws_Main:	; Routine 0
 		neg.w	obVelX(a0)	; move Jaws to the right
 
 Jaws_Turn:	; Routine 2
+		moveq	#$10,d2
+		moveq	#$20,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		moveq	#$C,d2
+		moveq	#$18,d3
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		move.b	#id_ExplosionItem,0(a0) ; change object to explosion
+		move.b	#0,obRoutine(a0)
+		addq.l	#4,sp
+		moveq	#10,d0
+		jsr	AddPoints
+		jmp	ExplosionItem
+
+	@nomouse:
 		subq.w	#1,jaws_timecount(a0) ; subtract 1 from turn delay time
 		bpl.s	@animate	; if time remains, branch
 		move.w	jaws_timedelay(a0),jaws_timecount(a0) ; reset turn delay time

@@ -70,7 +70,7 @@ LBall_Action:	; Routine 2
 		btst.b	#0,(v_mouse_press).w
 		beq.s	@nomouse
 		sfx	sfx_Death
-		move.b	#$78,(v_mouse_hurttimer).w
+		move.b	#$50,(v_mouse_hurttimer).w
 		cmpi.b	#1,obAnim(a0)
 		beq.s	@extinguish
 		cmpi.b	#3,obAnim(a0)

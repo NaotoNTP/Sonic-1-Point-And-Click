@@ -47,7 +47,7 @@ Gar_MakeFire:	; Routine 2
 		move.b	obStatus(a0),obStatus(a1)
 
 	@nofire:
-		rts	
+		rts
 ; ===========================================================================
 
 Gar_FireBall:	; Routine 4
@@ -71,6 +71,26 @@ Gar_FireBall:	; Routine 4
 		sfx	sfx_LavaBall	; play lava ball sound
 
 Gar_AniFire:	; Routine 6
+		moveq	#6,d2
+		moveq	#$C,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		sfx	sfx_Death
+		move.b	#$50,(v_mouse_hurttimer).w
+		bra.w	DeleteObject
+
+	@nomouse:
 		move.b	(v_framebyte).w,d0
 		andi.b	#7,d0
 		bne.s	@nochg
@@ -84,11 +104,11 @@ Gar_AniFire:	; Routine 6
 		bsr.w	ObjHitWallLeft
 		tst.w	d1
 		bmi.w	DeleteObject	; delete if the	fireball hits a	wall
-		rts	
+		rts
 
 	@isright:
 		moveq	#8,d3
 		bsr.w	ObjHitWallRight
 		tst.w	d1
 		bmi.w	DeleteObject
-		rts	
+		rts

@@ -123,12 +123,63 @@ Swing_SetSolid:	; Routine 2
 		bsr.w	Swing_Solid
 
 Swing_Action:	; Routine $C
+		tst.b	obColType(a0)
+		beq.s	@nomouse
+		moveq	#$10,d2
+		moveq	#$20,d3
+		cmpi.b	#id_SLZ,(v_zone).w ; check if level is SLZ
+		bne.s	@notSLZ
+		add.w	d2,d2
+		add.w	d3,d3
+
+	@notSLZ:
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		moveq	#$10,d2
+		moveq	#$20,d3
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		tst.b	(v_mouse_hurttimer).w
+		bne.s	@nomouse
+		sfx	sfx_SpikeHit
+		move.b	#$50,(v_mouse_hurttimer).w
+
+	@nomouse:
 		bsr.w	Swing_Move
 		bsr.w	DisplaySprite
 		bra.w	Swing_ChkDel
 ; ===========================================================================
 
 Swing_Action2:	; Routine 4
+		cmpi.b	#id_SLZ,(v_zone).w ; check if level is SLZ
+		bne.s	@nomouse
+		moveq	#$20,d2
+		moveq	#$40,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		moveq	#$10,d3
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d3,d1
+		cmp.w	d2,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		tst.b	(v_mouse_hurttimer).w
+		bne.s	@nomouse
+		sfx	sfx_SpikeHit
+		move.b	#$50,(v_mouse_hurttimer).w
+
+	@nomouse:
 		moveq	#0,d1
 		move.b	obActWid(a0),d1
 		bsr.w	ExitPlatform
@@ -142,4 +193,3 @@ Swing_Action2:	; Routine 4
 		bsr.w	DisplaySprite
 		bra.w	Swing_ChkDel
 
-		rts

@@ -3,6 +3,41 @@
 ; ---------------------------------------------------------------------------
 
 BossSpikeball:
+		cmpi.b	#$A,obRoutine(a0)
+		beq.s	@nomouse
+		moveq	#8,d2
+		moveq	#$10,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		move.b	(v_mouse_press).w,d0
+		or.b	(v_mouse_hold).w,d0
+		btst.l	#0,d0
+		beq.s	@nomouse
+		neg.w	obVelY(a0)
+		st	$3B(a0)
+		tst.b	(v_mouse_hurttimer).w
+		bne.s	@nomouse
+		sfx	sfx_SpikeHit
+		move.b	#$50,(v_mouse_hurttimer).w
+
+	@nomouse:
+		tst.b	$3B(a0)
+		beq.s	@normal
+		cmpi.w	#$600,obVelY(a0)
+		blt.s	@normal
+		move.b	#8,obRoutine(a0)
+		clr.w	obSubtype(a0)
+
+	@normal:
 		moveq	#0,d0
 		move.b	obRoutine(a0),d0
 		move.w	Obj7B_Index(pc,d0.w),d0
@@ -78,7 +113,7 @@ loc_18DAE:
 ; ===========================================================================
 
 locret_18DC4:
-		rts	
+		rts
 ; ===========================================================================
 
 loc_18DC6:	; Routine 4
@@ -141,7 +176,7 @@ loc_18E48:
 		bne.s	loc_18E7A
 		move.w	#$20,obSubtype(a0)
 		move.b	#8,obRoutine(a0)
-		rts	
+		rts
 ; ===========================================================================
 
 loc_18E7A:
@@ -161,7 +196,7 @@ loc_18E96:
 		move.b	obDelayAni(a0),obTimeFrame(a0)
 
 locret_18EA8:
-		rts	
+		rts
 ; ===========================================================================
 
 loc_18EAA:	; Routine 6
@@ -313,7 +348,7 @@ Obj7B_Explode:	; Routine 8
 		clr.b	obRoutine(a0)
 		cmpi.w	#$20,obSubtype(a0)
 		beq.s	Obj7B_MakeFrag
-		rts	
+		rts
 ; ===========================================================================
 
 Obj7B_MakeFrag:
@@ -341,7 +376,7 @@ Obj7B_Loop:
 loc_1909A:
 		dbf	d1,Obj7B_Loop	; repeat sequence 3 more times
 
-		rts	
+		rts
 ; ===========================================================================
 Obj7B_FragSpeed:dc.w -$100, -$340	; horizontal, vertical
 		dc.w -$A0, -$240
@@ -360,4 +395,4 @@ Obj7B_MoveFrag:	; Routine $A
 		move.b	d0,obFrame(a0)
 		tst.b	1(a0)
 		bpl.w	Obj7A_Delete
-		rts	
+		rts
