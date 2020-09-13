@@ -33,30 +33,6 @@ Roll_Main:	; Routine 0
 ; ===========================================================================
 
 Roll_Action:	; Routine 2
-		moveq	#8,d2
-		moveq	#$10,d3
-		move.w	(v_mouse_worldx).w,d0
-		sub.w	obX(a0),d0
-		add.w	d2,d0
-		cmp.w	d3,d0
-		bcc.s	@nomouse
-		moveq	#$20,d2
-		move.w	(v_mouse_worldy).w,d1
-		sub.w	obY(a0),d1
-		add.w	d3,d1
-		cmp.w	d2,d1
-		bcc.s	@nomouse
-		bset.b	#0,(v_mouse_gfxindex).w
-		btst.b	#0,(v_mouse_press).w
-		beq.s	@nomouse
-		move.b	#id_ExplosionItem,0(a0) ; change object to explosion
-		move.b	#0,obRoutine(a0)
-		addq.l	#4,sp
-		moveq	#10,d0
-		jsr	AddPoints
-		jmp	ExplosionItem
-
-	@nomouse:
 		moveq	#0,d0
 		move.b	ob2ndRout(a0),d0
 		move.w	Roll_Index2(pc,d0.w),d1
@@ -107,6 +83,30 @@ loc_E0D2:
 ; ===========================================================================
 
 Roll_RollNoChk:
+		moveq	#8,d2
+		moveq	#$10,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		moveq	#$20,d2
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d3,d1
+		cmp.w	d2,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		move.b	#id_ExplosionItem,0(a0) ; change object to explosion
+		move.b	#0,obRoutine(a0)
+		addq.l	#4,sp
+		moveq	#10,d0
+		jsr	AddPoints
+		jmp	ExplosionItem
+
+	@nomouse:
 		cmpi.b	#2,obAnim(a0)
 		beq.s	loc_E0F8
 		subq.w	#1,$30(a0)
@@ -125,6 +125,30 @@ loc_E0F8:
 ; ===========================================================================
 
 Roll_ChkJump:
+		moveq	#8,d2
+		moveq	#$10,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		moveq	#$20,d2
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d3,d1
+		cmp.w	d2,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		move.b	#id_ExplosionItem,0(a0) ; change object to explosion
+		move.b	#0,obRoutine(a0)
+		addq.l	#4,sp
+		moveq	#10,d0
+		jsr	AddPoints
+		jmp	ExplosionItem
+
+	@nomouse:
 		bsr.w	Roll_Stop
 		bsr.w	SpeedToPos
 		bsr.w	ObjFloorDist
@@ -147,6 +171,30 @@ locret_E12E:
 ; ===========================================================================
 
 Roll_MatchFloor:
+		moveq	#8,d2
+		moveq	#$10,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		moveq	#$20,d2
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d3,d1
+		cmp.w	d2,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		move.b	#id_ExplosionItem,0(a0) ; change object to explosion
+		move.b	#0,obRoutine(a0)
+		addq.l	#4,sp
+		moveq	#10,d0
+		jsr	AddPoints
+		jmp	ExplosionItem
+
+	@nomouse:
 		bsr.w	ObjectFall
 		tst.w	obVelY(a0)
 		bmi.s	locret_E150

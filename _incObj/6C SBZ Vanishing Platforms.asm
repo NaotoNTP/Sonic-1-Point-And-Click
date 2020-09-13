@@ -44,6 +44,31 @@ VanP_Main:	; Routine 0
 		move.w	d1,$38(a0)
 
 loc_16068:	; Routine 6
+		moveq	#$10,d2
+		moveq	#$20,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		subq.w	#8,d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		cmpi.w	#$100,vanp_timer(a0)
+		bge.s	@nosound
+		sfx	sfx_ActionBlock
+
+	@nosound:
+		move.b	#2,obRoutine(a0)
+		move.w	#$7FFF,vanp_timer(a0)
+		move.b	#1,obAnim(a0)
+		bra.s	VanP_nomouse
+
+	@nomouse:
 		move.w	(v_framecount).w,d0
 		sub.w	$36(a0),d0
 		and.w	$38(a0),d0
@@ -60,6 +85,29 @@ loc_16068:	; Routine 6
 
 VanP_Vanish:	; Routine 2
 VanP_Appear:	; Routine 4
+		moveq	#$10,d2
+		moveq	#$20,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	VanP_nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		subq.w	#8,d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	VanP_nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		cmpi.w	#$100,vanp_timer(a0)
+		bge.s	@nosound
+		sfx	sfx_ActionBlock
+
+	@nosound:
+		move.w	#$7FFF,vanp_timer(a0)
+		move.b	#1,obAnim(a0)
+
+VanP_nomouse:
 		subq.w	#1,vanp_timer(a0)
 		bpl.s	@wait
 		move.w	#127,vanp_timer(a0)

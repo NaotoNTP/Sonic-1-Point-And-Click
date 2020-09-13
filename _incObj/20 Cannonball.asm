@@ -30,6 +30,25 @@ Cbal_Main:	; Routine 0
 		move.b	#4,obFrame(a0)
 
 Cbal_Bounce:	; Routine 2
+		moveq	#8,d2
+		moveq	#$10,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		move.b	#$50,(v_mouse_hurttimer).w
+		bra.s	Cbal_Explode
+
+	@nomouse:
 		jsr	(ObjectFall).l
 		tst.w	obVelY(a0)
 		bmi.s	Cbal_ChkExplode
@@ -58,7 +77,6 @@ Cbal_ChkExplode:
 		bpl.s	Cbal_Animate	; if time is > 0, branch
 
 	Cbal_Explode:
-		move.b	#id_MissileDissolve,0(a0)
 		move.b	#id_ExplosionBomb,0(a0)	; change object	to an explosion	($3F)
 		move.b	#0,obRoutine(a0) ; reset routine counter
 		bra.w	ExplosionBomb	; jump to explosion code
@@ -76,4 +94,4 @@ Cbal_Display:
 		addi.w	#$E0,d0
 		cmp.w	obY(a0),d0	; has object fallen off	the level?
 		bcs.w	DeleteObject	; if yes, branch
-		rts	
+		rts

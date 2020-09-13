@@ -164,7 +164,7 @@ Sto_Action:	; Routine 2
 		move.w	sto_origX(a0),d1
 		sub.w	d0,d1
 		move.w	d1,obX(a0)
-		rts	
+		rts
 ; ===========================================================================
 
 @loc_15DE0:
@@ -202,7 +202,7 @@ Sto_Action:	; Routine 2
 		move.w	sto_origX(a0),d1
 		sub.w	d0,d1
 		move.w	d1,obX(a0)
-		rts	
+		rts
 ; ===========================================================================
 
 @loc_15E3C:
@@ -217,6 +217,33 @@ Sto_Action:	; Routine 2
 ; ===========================================================================
 
 @type03:
+		moveq	#$20,d2
+		moveq	#$40,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		move.b	(v_mouse_press).w,d0
+		or.b	(v_mouse_hold).w,d0
+		btst.l	#0,d0
+		beq.s	@nomouse
+		tst.b	$39(a0)
+		bne.s	@ret
+		sfx	sfx_PushBlock
+		st	$39(a0)
+
+	@ret:
+		rts
+
+	@nomouse:
+		sf	$39(a0)
 		tst.b	sto_active(a0)
 		bne.s	@isactive03
 		tst.w	$3A(a0)
@@ -249,10 +276,37 @@ Sto_Action:	; Routine 2
 		move.w	sto_origY(a0),d1
 		add.w	d0,d1
 		move.w	d1,obY(a0)
-		rts	
+		rts
 ; ===========================================================================
 
 @type04:
+		moveq	#$20,d2
+		moveq	#$40,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse2
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse2
+		bset.b	#0,(v_mouse_gfxindex).w
+		move.b	(v_mouse_press).w,d0
+		or.b	(v_mouse_hold).w,d0
+		btst.l	#0,d0
+		beq.s	@nomouse2
+		tst.b	$39(a0)
+		bne.s	@ret2
+		sfx	sfx_PushBlock
+		st	$39(a0)
+
+	@ret2:
+		rts
+
+	@nomouse2:
+		sf	$39(a0)
 		tst.b	sto_active(a0)
 		bne.s	@isactive04
 		tst.w	$3A(a0)
@@ -292,7 +346,7 @@ Sto_Action:	; Routine 2
 		move.w	sto_origY(a0),d1
 		add.w	d0,d1
 		move.w	d1,obY(a0)
-		rts	
+		rts
 ; ===========================================================================
 
 @type05:
@@ -318,10 +372,10 @@ Sto_Action:	; Routine 2
 		beq.s	@loc_15F5E
 
 @locret_15F5C:
-		rts	
+		rts
 ; ===========================================================================
 
 @loc_15F5E:
 		clr.b	obSubtype(a0)
 		clr.b	sto_active(a0)
-		rts	
+		rts

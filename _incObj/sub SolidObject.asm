@@ -31,13 +31,13 @@ SolidObject:
 		bclr	#3,obStatus(a0)	; clear object's standing flag
 		clr.b	obSolid(a0)
 		moveq	#0,d4
-		rts	
+		rts
 
 	@stand:
 		move.w	d4,d2
 		jsr	MvSonicOnPtfm
 		moveq	#0,d4
-		rts	
+		rts
 ; ===========================================================================
 
 SolidObject71:
@@ -60,13 +60,13 @@ SolidObject71:
 		bclr	#3,obStatus(a0)
 		clr.b	obSolid(a0)
 		moveq	#0,d4
-		rts	
+		rts
 
 	@stand:
 		move.w	d4,d2
 		jsr	MvSonicOnPtfm
 		moveq	#0,d4
-		rts	
+		rts
 ; ===========================================================================
 
 SolidObject2F:
@@ -193,18 +193,24 @@ Solid_Centre:
 		bset	#5,obStatus(a1)	; make Sonic push object
 		bset	#5,obStatus(a0)	; make object be pushed
 		moveq	#1,d4		; return side collision
-		rts	
+		rts
 ; ===========================================================================
 
 Solid_SideAir:
 		bsr.s	Solid_NotPushing
 		moveq	#1,d4		; return side collision
-		rts	
+		rts
 ; ===========================================================================
 
 Solid_Ignore:
 		btst	#5,obStatus(a0)	; is Sonic pushing?
 		beq.s	Solid_Debug	; if not, branch
+		cmpi.b	#id_Roll,obAnim(a1)	; is Sonic in his jumping/rolling animation?
+		beq.s	Solid_NotPushing	; if so, branch
+		cmpi.b	#id_Drown,obAnim(a1)	; is Sonic in his drowning animation?
+		beq.s	Solid_NotPushing	; if so, branch
+		cmpi.b	#id_Hurt,obAnim(a1)	; is Sonic in his hurt animation?
+		beq.s	Solid_NotPushing	; if so, branch
 		move.w	#id_Run,obAnim(a1) ; use running animation
 
 Solid_NotPushing:
@@ -213,7 +219,7 @@ Solid_NotPushing:
 
 Solid_Debug:
 		moveq	#0,d4		; return no collision
-		rts	
+		rts
 ; ===========================================================================
 
 Solid_TopBottom:
@@ -235,7 +241,7 @@ Solid_Below:
 
 Solid_TopBtmAir:
 		moveq	#-1,d4
-		rts	
+		rts
 ; ===========================================================================
 
 Solid_Squash:
@@ -246,7 +252,7 @@ Solid_Squash:
 		jsr	(KillSonic).l	; kill Sonic
 		movea.l	(sp)+,a0
 		moveq	#-1,d4
-		rts	
+		rts
 ; ===========================================================================
 
 Solid_Landed:
@@ -268,12 +274,12 @@ Solid_Landed:
 		move.b	#2,obSolid(a0) ; set standing flags
 		bset	#3,obStatus(a0)
 		moveq	#-1,d4		; return top/bottom collision
-		rts	
+		rts
 ; ===========================================================================
 
 Solid_Miss:
 		moveq	#0,d4
-		rts	
+		rts
 ; End of function SolidObject
 
 
@@ -311,5 +317,5 @@ Solid_ResetFloor:
 	@notinair:
 		bset	#3,obStatus(a1)	; set object standing flag
 		bset	#3,obStatus(a0)	; set Sonic standing on object flag
-		rts	
+		rts
 ; End of function Solid_ResetFloor

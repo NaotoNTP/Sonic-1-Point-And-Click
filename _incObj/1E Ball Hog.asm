@@ -32,10 +32,35 @@ Hog_Main:	; Routine 0
 		addq.b	#2,obRoutine(a0)
 
 	@floornotfound:
-		rts	
+		rts
 ; ===========================================================================
 
 Hog_Action:	; Routine 2
+		moveq	#8,d2
+		moveq	#$10,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		moveq	#$13,d2
+		moveq	#$26,d3
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		move.b	#id_ExplosionItem,0(a0) ; change object to explosion
+		move.b	#0,obRoutine(a0)
+		addq.l	#4,sp
+		moveq	#10,d0
+		jsr	AddPoints
+		jmp	ExplosionItem
+
+	@nomouse:
 		lea	(Ani_Hog).l,a1
 		bsr.w	AnimateSprite
 		cmpi.b	#1,obFrame(a0)	; is final frame (01) displayed?

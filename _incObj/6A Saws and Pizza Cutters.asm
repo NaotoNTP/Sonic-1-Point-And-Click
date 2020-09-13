@@ -47,10 +47,30 @@ Saw_Action:	; Routine 2
 ; ===========================================================================
 
 @type00:
+		moveq	#$20,d2
+		moveq	#$40,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		tst.b	(v_mouse_hurttimer).w
+		bne.s	@nomouse
+		sfx	sfx_SpikeHit
+		move.b	#$50,(v_mouse_hurttimer).w
+
+	@nomouse:
 		rts			; doesn't move
 ; ===========================================================================
 
 @type01:
+		bsr.s	@type00
 		move.w	#$60,d1
 		moveq	#0,d0
 		move.b	(v_oscillate+$E).w,d0
@@ -78,10 +98,11 @@ Saw_Action:	; Routine 2
 		sfx	sfx_Saw		; play saw sound
 
 	@nosound01:
-		rts	
+		rts
 ; ===========================================================================
 
 @type02:
+		bsr.w	@type00
 		move.w	#$30,d1
 		moveq	#0,d0
 		move.b	(v_oscillate+6).w,d0
@@ -108,7 +129,7 @@ Saw_Action:	; Routine 2
 		sfx	sfx_Saw		; play saw sound
 
 	@nosound02:
-		rts	
+		rts
 ; ===========================================================================
 
 @type03:
@@ -137,7 +158,7 @@ Saw_Action:	; Routine 2
 		addq.l	#4,sp
 
 	@nosaw03y:
-		rts	
+		rts
 ; ===========================================================================
 
 @here03:
@@ -149,7 +170,7 @@ Saw_Action:	; Routine 2
 		bchg	#0,obFrame(a0)
 
 	@sameframe03:
-		rts	
+		rts
 ; ===========================================================================
 
 @type04:
@@ -176,7 +197,7 @@ Saw_Action:	; Routine 2
 		addq.l	#4,sp
 
 	@nosaw04y:
-		rts	
+		rts
 ; ===========================================================================
 
 @here04:
@@ -188,4 +209,4 @@ Saw_Action:	; Routine 2
 		bchg	#0,obFrame(a0)
 
 	@sameframe04:
-		rts	
+		rts

@@ -66,6 +66,7 @@ loc_BDBE:
 		moveq	#8,d3
 		move.w	(v_mouse_worldy).w,d1
 		sub.w	obY(a0),d1
+		addq.w	#3,d1
 		add.w	d3,d1
 		cmp.w	d2,d1
 		bcc.s	@nomouse

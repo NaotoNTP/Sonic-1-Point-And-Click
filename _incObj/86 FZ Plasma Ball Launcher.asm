@@ -127,6 +127,26 @@ loc_1A97E:
 ; ===========================================================================
 
 loc_1A982:	; Routine 8
+		moveq	#8,d2
+		moveq	#$10,d3
+		move.w	(v_mouse_worldx).w,d0
+		sub.w	obX(a0),d0
+		add.w	d2,d0
+		cmp.w	d3,d0
+		bcc.s	@nomouse
+		move.w	(v_mouse_worldy).w,d1
+		sub.w	obY(a0),d1
+		add.w	d2,d1
+		cmp.w	d3,d1
+		bcc.s	@nomouse
+		bset.b	#0,(v_mouse_gfxindex).w
+		btst.b	#0,(v_mouse_press).w
+		beq.s	@nomouse
+		move.b	#$50,(v_mouse_hurttimer).w
+		sfx	sfx_Death
+		bra.w	loc_1AA34
+
+	@nomouse:
 		moveq	#0,d0
 		move.b	ob2ndRout(a0),d0
 		move.w	Obj86_Index2(pc,d0.w),d0
@@ -147,7 +167,7 @@ loc_1A9A6:
 		move.w	d0,obVelX(a0)
 		move.w	#$B4,obSubtype(a0)
 		addq.b	#2,ob2ndRout(a0)
-		rts	
+		rts
 ; ===========================================================================
 
 loc_1A9C0:
@@ -177,7 +197,7 @@ loc_1A9E6:
 		move.w	#$140,obVelY(a0)
 
 locret_1AA1C:
-		rts	
+		rts
 ; ===========================================================================
 
 loc_1AA1E:
@@ -186,7 +206,7 @@ loc_1AA1E:
 		bcc.s	loc_1AA34
 		subq.w	#1,obSubtype(a0)
 		beq.s	loc_1AA34
-		rts	
+		rts
 ; ===========================================================================
 
 loc_1AA34:

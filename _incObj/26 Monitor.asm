@@ -24,7 +24,7 @@ Monitor:
 
 	@fail:
 		bra.w	DeleteObject
-	
+
 	@normal:
 		moveq	#0,d0
 		move.b	obRoutine(a0),d0
@@ -55,7 +55,7 @@ Mon_Main:	; Routine 0
 		beq.s	@notbroken	; if not, branch
 		move.b	#8,obRoutine(a0) ; run "Mon_Display" routine
 		move.b	#$B,obFrame(a0)	; use broken monitor frame
-		rts	
+		rts
 ; ===========================================================================
 
 	@notbroken:
@@ -65,9 +65,9 @@ Mon_Main:	; Routine 0
 Mon_Solid:	; Routine 2
 		btst.b	#4,obStatus(a0)
 		beq.s	@skip
-		
+
 		bra.w	Mon_Animate
-	
+
 	@skip:
 		tst.b	obStatus(a0)
 		bmi.s	@fall
@@ -102,7 +102,7 @@ Mon_Solid:	; Routine 2
 		add.w	d1,obY(a0)
 		tst.b	obStatus(a0)
 		bmi.s	@thrown
-		
+
 		clr.w	obVelY(a0)
 		clr.b	ob2ndRout(a0)
 		bra.w	Mon_Animate
@@ -119,7 +119,7 @@ Mon_Solid:	; Routine 2
 		move.b	#4,obRoutine(a0)
 		bra.w	Mon_Animate
 ; ===========================================================================
-	
+
 	@nobreak:
 		move.b	#$46,obColType(a0)
 		clr.w	obVelX(a0)
@@ -176,7 +176,11 @@ loc_A246:
 loc_A25C:
 		btst	#5,obStatus(a0)
 		beq.s	Mon_Animate
-		move.w	#1,obAnim(a1)	; clear obAnim and set obNextAni to 1
+		cmpi.b	#id_Roll,obAnim(a1)	; is Sonic in his jumping/rolling animation?
+		beq.s	loc_A26A	; if so, branch
+		cmpi.b	#id_Drown,obAnim(a1)	; is Sonic in his drowning animation?
+		beq.s	loc_A26A	; if so, branch
+		move.w	#1,obAnim(a1)	; clear obAnim and set obNextAni to 1, putting Sonic in his walking animation
 
 loc_A26A:
 		bclr	#5,obStatus(a0)
@@ -185,11 +189,11 @@ loc_A26A:
 Mon_Animate:	; Routine 6
 		lea	(Ani_Monitor).l,a1
 		bsr.w	AnimateSprite
-		
+
 		cmpi.b	#9,obAnim(a0)
 		beq.w	Mon_Display
 		moveq	#0,d4
-		
+
 		moveq	#$E,d2
 		moveq	#$1C,d3
 		move.w	(v_mouse_worldx).w,d0
@@ -203,22 +207,22 @@ Mon_Animate:	; Routine 6
 		cmp.w	d3,d1
 		bcc.s	@nohover
 		addq.b	#1,d4
-		
+
 	@nohover:
 		btst.b	#0,(v_mouse_press).w
 		beq.s	@nopress
 		addq.b	#2,d4
-	
+
 	@nopress:
 		btst.b	#0,(v_mouse_hold).w
 		beq.s	@nohold
 		addq.b	#4,d4
-		
+
 	@nohold:
 		btst.b	#4,obStatus(a0)
 		beq.s	@notclicked
 		addq.b	#8,d4
-	
+
 	@notclicked:
 		add.w	d4,d4
 		move.w	@index(pc,d4.w),d4
@@ -241,19 +245,19 @@ Mon_Animate:	; Routine 6
 		dc.w @held-@index
 		dc.w @held-@index
 ; ===========================================================================
-	
+
 	@clrglow:
 		bset.b	#0,(v_mouse_gfxindex).w
-		
+
 	@clrdisplay:
 		bset.b	#7,obStatus(a0)
 		bclr.b	#4,obStatus(a0)
 		bra.s	@display
-; ===========================================================================	
-	
+; ===========================================================================
+
 	@clicked:
 		bset.b	#2,obStatus(a0)
-		bset.b	#4,obStatus(a0)	
+		bset.b	#4,obStatus(a0)
 		sfx	sfx_UnkB8
 		lea	(v_objstate).w,a2
 		moveq	#0,d0
@@ -261,7 +265,7 @@ Mon_Animate:	; Routine 6
 		bset.b	#0,2(a2,d0.w)
 		move.b	#0,obColType(a0)
 		bclr.b	#3,(v_player+obStatus).w
-		
+
 	@held:
 		move.w	(v_mouse_worldx).w,obX(a0)
 		move.w	(v_mouse_worldy).w,obY(a0)
@@ -269,17 +273,17 @@ Mon_Animate:	; Routine 6
 		move.b	(v_mouse_inputy+1).w,obVelY(a0)
 		asr.w	obVelX(a0)
 		asr.w	obVelY(a0)
-		
+
 	@glow:
 		bset.b	#0,(v_mouse_gfxindex).w
-	
+
 	@display:
 ; ===========================================================================
 
 Mon_Display:	; Routine 8
 		bsr.w	DisplaySprite
 		out_of_range	DeleteObject
-		rts	
+		rts
 ; ===========================================================================
 
 Mon_BreakOpen:	; Routine 4

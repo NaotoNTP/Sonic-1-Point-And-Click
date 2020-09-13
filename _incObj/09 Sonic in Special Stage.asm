@@ -33,6 +33,7 @@ Obj09_Main:	; Routine 0
 		move.b	#id_Roll,obAnim(a0)
 		bset	#2,obStatus(a0)
 		bset	#1,obStatus(a0)
+		clr.b	(v_sstempo).w
 
 Obj09_ChkDebug:	; Routine 2
 		tst.w	(f_debugmode).w	; is debug mode	cheat enabled?
@@ -674,24 +675,15 @@ Obj09_UPblock:
 		move.b	#$1E,$36(a0)
 		btst	#6,($FFFFF783).w
 		beq.s	Obj09_UPsnd
-		move.w	(v_ssrotate).w,d0
-		bpl.s	@pos
-		neg.w	d0
-
-	@pos:
-		cmpi.w	#$70,d0
-		bge.s	@skip
 		asl	(v_ssrotate).w	; increase stage rotation speed
-		sub.b	#$20,mTempo.w
-
-	@skip:
+		addq.b	#1,(v_sstempo).w
 		movea.l	$32(a0),a1
 		subq.l	#1,a1
 		move.b	#$2A,(a1)	; change item to a "DOWN" block
 
 Obj09_UPsnd:
 		sfx	sfx_ActionBlock	; play up/down sound
-		rts
+		bra.s	Obj09_Tempo
 ; ===========================================================================
 
 Obj09_DOWNblock:
@@ -702,24 +694,15 @@ Obj09_DOWNblock:
 		move.b	#$1E,$36(a0)
 		btst	#6,(v_ssrotate+1).w
 		bne.s	Obj09_DOWNsnd
-		move.w	(v_ssrotate).w,d0
-		bpl.s	@pos
-		neg.w	d0
-
-	@pos:
-		cmpi.w	#$1C,d0
-		ble.s	@skip
 		asr	(v_ssrotate).w	; reduce stage rotation speed
-		add.b	#$20,mTempo.w
-
-	@skip:
+		subq.b	#1,(v_sstempo).w
 		movea.l	$32(a0),a1
 		subq.l	#1,a1
 		move.b	#$29,(a1)	; change item to an "UP" block
 
 Obj09_DOWNsnd:
 		sfx	sfx_ActionBlock	; play up/down sound
-		rts
+		bra.s	Obj09_Tempo
 ; ===========================================================================
 
 Obj09_Rblock:
@@ -738,6 +721,23 @@ Obj09_Rblock:
 Obj09_RevStage:
 		neg.w	(v_ssrotate).w	; reverse stage rotation
 		sfx	sfx_ActionBlock	; play up/down sound
+
+
+Obj09_Tempo:
+		tst.b	(v_sstempo).w
+		beq.s	@normal
+		bmi.s	@slow
+
+	@fast:
+		move.b	#$00,mTempo.w		; save as the new tempo
+		rts
+
+	@normal:
+		move.b	#$20,mTempo.w		; save as the new tempo
+		rts
+
+	@slow:
+		move.b	#$40,mTempo.w		; save as the new tempo
 		rts
 ; ===========================================================================
 
