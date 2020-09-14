@@ -21,11 +21,13 @@ GRing_Main:	; Routine 0
 		move.b	#$40,obActWid(a0)
 		tst.b	obRender(a0)
 		bpl.s	GRing_Animate
+		cmpi.b	#3,(v_isemu).w	; is emulator regen?
+		beq.w	GRing_Delete	; if yes, branch
 		cmpi.b	#6,(v_emeralds).w ; do you have 6 emeralds?
 		beq.w	GRing_Delete	; if yes, branch
 		cmpi.w	#50,(v_rings).w	; do you have at least 50 rings?
 		bcc.s	GRing_Okay	; if yes, branch
-		rts	
+		rts
 ; ===========================================================================
 
 GRing_Okay:
@@ -51,7 +53,7 @@ GRing_Animate:	; Routine 2
 		btst.b	#0,(v_mouse_press).w
 		beq.s	@nomouse
 		bra.s	GRing_Explode
-		
+
 	@nomouse:
 		move.b	(v_ani1_frame).w,obFrame(a0)
 		out_of_range	DeleteObject
@@ -81,7 +83,7 @@ GRing_Explode:
 		sfx	sfx_RingLoss
 		lea	GRing_Spill,a3
 		moveq	#31,d5
-		
+
 	@loop:
 		bsr.w	FindFreeObj
 		bne.s	GRing_Delete
@@ -102,10 +104,10 @@ GRing_Explode:
 		move.w 	(a3)+,$10(a1) ; move the data contained in the array to the x velocity and increment the address in a3
 		move.w	(a3)+,$12(a1) ; move the data contained in the array to the y velocity and increment the address in a3
 		dbf	d5,@loop	; repeat for number of rings (max 31)
-		
+
 GRing_Delete:	; Routine 6
 		bra.w	DeleteObject
-		
+
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Ring Spawn Array

@@ -254,6 +254,10 @@ Mon_Animate:	; Routine 6
 		bclr.b	#4,obStatus(a0)
 		bra.s	@display
 ; ===========================================================================
+	@regen:
+		move.b	(v_mouse_regx+1).w,obVelX(a0)
+		move.b	(v_mouse_regy+1).w,obVelY(a0)
+		bra.s	@cont
 
 	@clicked:
 		bset.b	#2,obStatus(a0)
@@ -269,8 +273,12 @@ Mon_Animate:	; Routine 6
 	@held:
 		move.w	(v_mouse_worldx).w,obX(a0)
 		move.w	(v_mouse_worldy).w,obY(a0)
+		cmpi.b	#3,(v_isemu).w
+		beq.s	@regen
 		move.b	(v_mouse_inputx+1).w,obVelX(a0)
 		move.b	(v_mouse_inputy+1).w,obVelY(a0)
+
+	@cont:
 		asr.w	obVelX(a0)
 		asr.w	obVelY(a0)
 

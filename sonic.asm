@@ -130,7 +130,7 @@ SRAMSupport:	if EnableSRAM=1
 		endc
 		dc.l $20202020		; SRAM start ($200001)
 		dc.l $20202020		; SRAM end ($20xxxx)
-Notes:		dc.b "                                                    " ; Notes (unused, anything can be put in this space, but it has to be 52 bytes.)
+Notes:		dc.b "If you can read this, you're trespassing; go away :P" ; Notes (unused, anything can be put in this space, but it has to be 52 bytes.)
 Region:		dc.b "JUE             " ; Region (Country code)
 EndOfHeader:
 
@@ -346,6 +346,7 @@ GameInit:
 		dbf	d6,@clearRAM	; clear RAM ($0000-$FDFF)
 
 		bsr.w	VDPSetupGame
+		bsr.w	DetectEmu
 		jsr	LoadDualPCM
 		bsr.w	JoypadInit
 
@@ -758,17 +759,6 @@ JoypadInit:
 		move.w	#159,(v_mouse_screenx).w
 		move.w	#111,(v_mouse_screeny).w
 
-		move.w	($C0001C).l,d0
-		cmpi.w	#$FFFF,d0		; Test for KEGA
-		beq.s	@set
-
-		move.w	#1,($C0001C).l
-		move.w	($C0001C).l,d0
-		cmpi.w	#1,d0			; Test for BlastEM
-
-	@set:
-		seq	(v_isemu).w
-
 		lea	(v_mouse_hold).w,a0
 		lea	($A10003).l,a1		; first	joypad port
 		bsr.w	ReadMouse
@@ -923,6 +913,9 @@ JoypadInit:
 		bsr.s	ReadMouse
 		bmi.s	@recheck
 		sfx	sfx_Lamppost
+		clr.w	(v_mouse_inputy).w
+		clr.w	(v_mouse_inputx).w
+		clr.w	(v_mouse_hold).w
 		bra.w	VDPSetupGame
 
 ; ---------------------------------------------------------------------------
@@ -1128,6 +1121,8 @@ ReadMouse:
 
 		enable_ints
 		move.l	d0,(v_mouse_raw).w
+		cmpi.b	#3,(v_isemu).w
+		beq.s	@regen
 
 		moveq	#0,d1
 		move.b	d0,d1
@@ -1149,7 +1144,6 @@ ReadMouse:
 
 	@Yhw:
 		move.w	d1,(v_mouse_inputy).w
-
 		moveq	#0,d1
 		move.w	d0,d1
 		lsr.w	#8,d1
@@ -1171,6 +1165,7 @@ ReadMouse:
 	@Xhw:
 		move.w	d1,(v_mouse_inputx).w
 
+	@button:
 		swap	d0
 		andi.b	#$F,d0
 		move.b	(a0),d1
@@ -1186,6 +1181,103 @@ ReadMouse:
 	@exit:
 		moveq	#1,d0		; set input status to "input success"
 		rts
+; ---------------------------------------------------------------------------
+
+	@regen:
+		moveq	#0,d1
+		move.b	d0,d1
+		move.w	(v_mouse_screeny).w,(v_mouse_scryprev).w
+		move.w	d1,(v_mouse_screeny).w
+		sub.w	(v_mouse_scryprev).w,d1
+
+		cmpi.w	#$FFFF,d1
+		bne.s	@divy2
+		moveq	#0,d1
+
+	@divy2:
+		asr.w	#1,d1
+		move.w	d1,(v_mouse_regy).w
+
+		cmpi.w	#$FFFF,d1
+		bne.s	@divy3
+		moveq	#0,d1
+
+	@divy3:
+		asr.w	#1,d1
+		add.w	d1,(v_mouse_regy).w
+
+		lsr.w	#8,d0
+		moveq	#0,d1
+		move.b	d0,d1
+		move.w	(v_mouse_xprev).w,d0
+		cmpi.b	#$40,d1
+		bls.s	@chkprevhi
+
+	@apply:
+		move.w	(v_mouse_screenx).w,(v_mouse_scrxprev).w
+		move.w	d1,(v_mouse_xprev).w
+		move.w	d1,(v_mouse_screenx).w
+		sub.w	(v_mouse_scrxprev).w,d1
+
+		cmpi.w	#$FFFF,d1
+		bne.s	@divx2
+		moveq	#0,d1
+
+	@divx2:
+		asr.w	#1,d1
+		move.w	d1,(v_mouse_regx).w
+
+		cmpi.w	#$FFFF,d1
+		bne.s	@divx3
+		moveq	#0,d1
+
+	@divx3:
+		asr.w	#1,d1
+		add.w	d1,(v_mouse_regx).w
+		bra.w	@button
+
+	@chkprevhi:
+		cmpi.w	#$80,d0
+		bls.s	@apply
+		add.w	#$100,d1
+		bra.s	@apply
+
+
+;		moveq	#0,d1
+;		move.b	d0,d1
+;		sub.b	(v_mouse_yprev).w,d1
+;		move.b	d0,(v_mouse_yprev).w
+;		ext.w	d1
+;		move.w	d1,(v_mouse_inputy).w
+;
+;		lsr.w	#8,d0
+;		moveq	#0,d1
+;		move.b	d0,d1
+;		move.b	(v_mouse_xprev).w,d2
+;		move.b	d0,(v_mouse_xprev).w
+;		cmpi.b	#$3F,d1
+;		bls.s	@chkprevhi
+;		cmpi.b	#$BF,d1
+;		bhi.s	@chkprevlo
+;
+;	@apply:
+;		sub.b	d2,d1
+;		andi.w	#$FF,d1
+;		ext.w	d1
+;		move.w	d1,(v_mouse_inputx).w
+;		bra.s	@button
+;
+;	@chkprevhi:
+;		cmpi.b	#$BF,d2
+;		bls.s	@apply
+;		add.w	#$100,d1
+;		bra.s	@apply
+;
+;	@chkprevlo:
+;		cmpi.b	#$3F,d2
+;		bhi.s	@apply
+;		add.w	#$100,d2
+;		bra.s	@apply
 
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -1246,6 +1338,116 @@ VDPSetupArray:	dc.w $8004		; 8-colour mode
 		dc.w $9001		; 64-cell hscroll size
 		dc.w $9100		; window horizontal position
 		dc.w $9200		; window vertical position
+; ===========================================================================
+
+DetectEmu:
+		clr.b	(v_isemu).w
+		move.w	($C0001C).l,d0
+		cmpi.w	#$FFFF,d0		; Test for KEGA
+		bne.s	@notKEGA
+		move.b	#1,(v_isemu).w
+		rts
+
+	@notKEGA:
+		move.w	#1,($C0001C).l
+		move.w	($C0001C).l,d0
+		cmpi.w	#1,d0			; Test for BlastEM
+		bne.s	@notBlastEM
+		move.b	#2,(v_isemu).w
+		rts
+
+	@notBlastEM:
+		lea	EmuDet_Z80BusReq(pc),a0		; Load the Z80 program
+		move.w	#EmuDet_Z80BusReq_End-EmuDet_Z80BusReq-1,d0
+		move.w	#$100,$A11100			; Request Z80 bus
+		move.w	#$100,$A11200			; Z80 reset off
+
+	@Z80Bus:					; Wait for Z80 bus
+		btst	#0,$A11100
+		bne.s	@Z80Bus
+
+		lea	$A00000,a1			; Load the Z80 program
+
+	@load:
+		move.b	(a0)+,(a1)+
+		dbf	d0,@load
+
+		move.w	#0,$A11200			; Z80 reset on
+		moveq	#$7F,d0				; Wait for Z80 reset
+
+	@resetZ80:
+		dbf	d0,@resetZ80
+
+		move.w	#0,$A11100			; Z80 start
+		move.w	#$100,$A11200			; Z80 reset off
+
+		moveq	#$7F,d0				; Wait for the program to finish
+
+	@waitZ80Run:
+		dbf	d0,@waitZ80Run
+
+		move.w	#$100,$A11100			; Get Z80 finish status
+
+	@stopZ80:
+		btst	#0,$A11100
+		bne.s	@stopZ80
+		move.b	EmuDet_Z80BR_Val,d0
+		move.w	#0,$A11100
+
+		cmpi.b	#$69,d0				; Was the Z80 halted?
+		bne.s	@notREGEN			; If yes, not regen
+		move.b	#3,(v_isemu).w
+
+	@notREGEN:
+		rts
+
+
+; -------------------------------------------------------------------------
+; Z80 side of the bus request test
+; -------------------------------------------------------------------------
+
+EmuDet_Z80BusReq:
+	dc.b	$F3		; di		; Disable interrupts
+
+	dc.b	$11,$00,$60	; ld de, $6000	; Set bank
+	dc.b	$AF		; xor a
+	dc.b	$12		; ld (de),a
+	dc.b	$3E,$01		; ld a,1
+	dc.b	$12		; ld (de),a
+	dc.b	$AF		; xor a
+	dc.b	$12		; ld (de),a
+	dc.b	$12		; ld (de),a
+	dc.b	$12		; ld (de),a
+	dc.b	$12		; ld (de),a
+	dc.b	$3E,$01		; ld a,1
+	dc.b	$12		; ld (de),a
+	dc.b	$AF		; xor a
+	dc.b	$12		; ld (de),a
+	dc.b	$3E,$01		; ld a,1
+	dc.b	$12		; ld (de),a
+
+	dc.b	$32,$00,$91	; ld ($9100),a	; Send bus request
+	dc.b	$00		; nop		; Wait
+	dc.b	$00		; nop
+	dc.b	$00		; nop
+	dc.b	$00		; nop
+	dc.b	$00		; nop
+	dc.b	$00		; nop
+	dc.b	$00		; nop
+	dc.b	$00		; nop
+
+	dc.b	$3E,$69		; ld a,$69	; If we didn't halt, set the finish status
+	dc.b	$32,$29,$00	; ld (EmuDet_Z80BR_Val),a
+
+	; EmuDetZ80BR_Loop:			; Loop here forever
+	dc.b	$C3,$26,$00	; jp EmuDetZ80BR_Loop
+
+	; EmuDet_Z80BR_Val:			; Finish status (nonzero if the Z80 didn't halt)
+	dc.b	$00
+EmuDet_Z80BusReq_End:		; db $00
+	even
+
+EmuDet_Z80BR_Val:		equ	$A00029
 
 ; ---------------------------------------------------------------------------
 ; Subroutine to	clear the screen
