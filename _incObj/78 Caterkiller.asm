@@ -386,6 +386,7 @@ loc_16C64:
 		bne.s	loc_16C82
 
 loc_16C7C:
+		clr.b    $20(a1)
 		move.b	#$A,obRoutine(a0)
 
 loc_16C82:
