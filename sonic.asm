@@ -1243,42 +1243,6 @@ ReadMouse:
 		bra.s	@apply
 
 
-;		moveq	#0,d1
-;		move.b	d0,d1
-;		sub.b	(v_mouse_yprev).w,d1
-;		move.b	d0,(v_mouse_yprev).w
-;		ext.w	d1
-;		move.w	d1,(v_mouse_inputy).w
-;
-;		lsr.w	#8,d0
-;		moveq	#0,d1
-;		move.b	d0,d1
-;		move.b	(v_mouse_xprev).w,d2
-;		move.b	d0,(v_mouse_xprev).w
-;		cmpi.b	#$3F,d1
-;		bls.s	@chkprevhi
-;		cmpi.b	#$BF,d1
-;		bhi.s	@chkprevlo
-;
-;	@apply:
-;		sub.b	d2,d1
-;		andi.w	#$FF,d1
-;		ext.w	d1
-;		move.w	d1,(v_mouse_inputx).w
-;		bra.s	@button
-;
-;	@chkprevhi:
-;		cmpi.b	#$BF,d2
-;		bls.s	@apply
-;		add.w	#$100,d1
-;		bra.s	@apply
-;
-;	@chkprevlo:
-;		cmpi.b	#$3F,d2
-;		bhi.s	@apply
-;		add.w	#$100,d2
-;		bra.s	@apply
-
 ; ||||||||||||||| S U B	R O U T	I N E |||||||||||||||||||||||||||||||||||||||
 
 
@@ -1343,28 +1307,60 @@ VDPSetupArray:	dc.w $8004		; 8-colour mode
 DetectEmu:
 		clr.b	(v_isemu).w
 		move.w	($C0001C).l,d0
-		cmpi.w	#$FFFF,d0		; Test for KEGA
+		cmpi.w	#$FFFF,d0			; Test for KEGA
 		bne.s	@notKEGA
-		move.b	#1,(v_isemu).w
+		move.b	#1,(v_isemu).w			; Set emu ID to KEGA
 		rts
 
 	@notKEGA:
 		move.w	#1,($C0001C).l
 		move.w	($C0001C).l,d0
-		cmpi.w	#1,d0			; Test for BlastEM
-		bne.s	@notBlastEM
-		move.b	#2,(v_isemu).w
+		cmpi.w	#1,d0				; Test for BlastEM(old)
+		bne.s	@notOldBlastEM
+		move.b	#2,(v_isemu).w			; Set emu ID to BlastEM(old)
 		rts
 
-	@notBlastEM:
-		lea	EmuDet_Z80BusReq(pc),a0		; Load the Z80 program
-		move.w	#EmuDet_Z80BusReq_End-EmuDet_Z80BusReq-1,d0
+	@notOldBlastEM:
 		move.w	#$100,$A11100			; Request Z80 bus
 		move.w	#$100,$A11200			; Z80 reset off
 
 	@Z80Bus:					; Wait for Z80 bus
 		btst	#0,$A11100
 		bne.s	@Z80Bus
+
+		lea	($A04000).l,a0
+		move.b	#$24,(a0)			; set dest to YM register $24
+		move.b	#$FC,1(a0)			; MSBs of $3F0
+		move.b	#$25,(a0)			; set dest to YM register $25
+		move.b	#$00,1(a0)			; LSBs of $3F0
+
+		move.b	#$26,(a0)			; set dest to YM register $26
+		move.b	#$F0,1(a0)			; Timer B value
+
+		move.b	#$27,(a0)			; set dest to YM register $27
+		move.b	#$F,1(a0)			; set the load & enable bits for both timers
+
+	@chkloop:
+		move.b (a0),d0				; get the YM read register output
+		btst	#0,d0				; has Timer A expired?
+		bne.s	@notREGEN			; if so, branch because this is not REGEN
+		btst	#1,d0				; has Timer B expired?
+		beq.s	@chkloop			; if not, loop
+
+		move.b	#3,(v_isemu).w			; Set emu ID to REGEN
+		startZ80
+		rts
+
+	@notREGEN:
+		startZ80
+		lea	EmuDet_Z80BusReq(pc),a0		; Load the Z80 program
+		move.w	#EmuDet_Z80BusReq_End-EmuDet_Z80BusReq-1,d0
+		move.w	#$100,$A11100			; Request Z80 bus
+		move.w	#$100,$A11200			; Z80 reset off
+
+	@Z80Bus2:					; Wait for Z80 bus
+		btst	#0,$A11100
+		bne.s	@Z80Bus2
 
 		lea	$A00000,a1			; Load the Z80 program
 
@@ -1395,10 +1391,10 @@ DetectEmu:
 		move.w	#0,$A11100
 
 		cmpi.b	#$69,d0				; Was the Z80 halted?
-		bne.s	@notREGEN			; If yes, not regen
-		move.b	#3,(v_isemu).w
+		bne.s	@notEmu				; If yes, not Emu
+		move.b	#4,(v_isemu).w			; Set emu ID to Other
 
-	@notREGEN:
+	@notEmu:
 		rts
 
 
