@@ -7590,19 +7590,19 @@ Sonic_MouseBoost:
 		asr.w	#2,d0
 		add.w	d0,obInertia(a0)
 		bpl.s	@pos
-		cmpi.w	#-$400,d1
+		cmpi.w	#-$480,d1
 		ble.w	Sonic_MdRollNoMouse
 
 	@negmv:
-		move.w	#-$400,obInertia(a0)
+		move.w	#-$480,obInertia(a0)
 		bra.w	Sonic_MdRollNoMouse
 
 	@pos:
-		cmpi.w	#$400,d1
+		cmpi.w	#$480,d1
 		bge.w	Sonic_MdRollNoMouse
 
 	@posmv:
-		move.w	#$400,obInertia(a0)
+		move.w	#$480,obInertia(a0)
 		bra.w	Sonic_MdRollNoMouse
 
 	@noclick:
@@ -7644,19 +7644,19 @@ Sonic_MouseBoostFall:
 		asr.w	#2,d0
 		add.w	d0,obVelX(a0)
 		bpl.s	@pos
-		cmpi.w	#-$400,d1
+		cmpi.w	#-$480,d1
 		ble.w	Sonic_MdJump2NoMouse
 
 	@negmv:
-		move.w	#-$400,obVelX(a0)
+		move.w	#-$480,obVelX(a0)
 		bra.w	Sonic_MdJump2NoMouse
 
 	@pos:
-		cmpi.w	#$400,d1
+		cmpi.w	#$480,d1
 		bge.w	Sonic_MdJump2NoMouse
 
 	@posmv:
-		move.w	#$400,obVelX(a0)
+		move.w	#$480,obVelX(a0)
 		bra.w	Sonic_MdJump2NoMouse
 
 	@noclick:

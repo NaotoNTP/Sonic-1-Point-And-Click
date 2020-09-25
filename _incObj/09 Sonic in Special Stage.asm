@@ -59,7 +59,7 @@ Obj09_Modes:	dc.w Obj09_OnWall-Obj09_Modes
 Obj09_OnWall:
 		bclr	#7,obStatus(a0)	; clear "Sonic has jumped" flag
 		bsr.w	Obj09_Jump
-		bsr.w	Obj09_Move
+		bsr.w	Obj09_MoveWall
 		bsr.w	Obj09_Fall
 		bra.s	Obj09_Display
 ; ===========================================================================
@@ -98,6 +98,8 @@ loc_1BA78:
 		move.b	(v_jpadhold2).w,d0
 		andi.b	#btnL+btnR,d0
 		bne.s	loc_1BAA8
+
+Obj09_MoveWall:
 		move.w	obInertia(a0),d0
 		beq.s	loc_1BAA8
 		bmi.s	loc_1BA9A
