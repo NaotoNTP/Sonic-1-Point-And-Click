@@ -29,7 +29,7 @@ v_mouse_scrxprev:	equ $FFFFF5E4
 v_mouse_scryprev:	equ $FFFFF5E6
 
 v_sstempo:	equ $FFFFF5E8
-v_isemu:	equ $FFFFF5E9
+
 
 v_mouse_raw:		equ $FFFFF5EA
 
@@ -304,6 +304,7 @@ v_creditsnum:	equ $FFFFFFF4	; credits index number (2 bytes)
 
 ConsoleRegion:	equ $FFFFFFF8	; Megadrive machine type (AMPS)
 v_megadrive:	equ $FFFFFFF8	; Megadrive machine type
+v_isemu:	equ $FFFFFFF9
 
 f_debugmode:	equ $FFFFFFFA	; debug mode flag (sometimes 2 bytes)
 v_init:		equ $FFFFFFFC	; 'init' text string (4 bytes)

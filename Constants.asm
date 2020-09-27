@@ -2,7 +2,7 @@
 ; Constants
 ; ---------------------------------------------------------------------------
 
-Z80_Space =	$808			; The amount of space reserved for Z80 driver. The compressor tool may ask you to increase the size...
+Z80_Space =	$80A			; The amount of space reserved for Z80 driver. The compressor tool may ask you to increase the size...
 
 ; VDP addressses
 vdp_data_port:		equ $C00000

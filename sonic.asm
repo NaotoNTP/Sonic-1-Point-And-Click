@@ -60,9 +60,9 @@ Vectors:	dc.l v_systemstack&$FFFFFF	; Initial stack pointer value
 		dc.l ErrorTrap			; IRQ level 1
 		dc.l ErrorTrap			; IRQ level 2
 		dc.l ErrorTrap			; IRQ level 3 (28)
-		dc.l HBlank				; IRQ level 4 (horizontal retrace interrupt)
+		dc.l $FFFFFFCA				; IRQ level 4 (horizontal retrace interrupt)
 		dc.l ErrorTrap			; IRQ level 5
-		dc.l VBlank				; IRQ level 6 (vertical retrace interrupt)
+		dc.l $FFFFFFC4				; IRQ level 6 (vertical retrace interrupt)
 		dc.l ErrorTrap			; IRQ level 7 (32)
 		dc.l ErrorTrap			; TRAP #00 exception
 		dc.l ErrorTrap			; TRAP #01 exception
@@ -268,8 +268,8 @@ initz80	z80prog 0
 		dec	de				; decrease loop counter
 		ld	a,d				; load d to a
 		zor	e				; check if both d and e are 0
-		jr	nz, .loop			; if no, clear more memoty
-.pc		jr	.pc				; trap CPU execution
+		jp	nz, .loop			; if no, clear more memoty
+.pc		jp	.pc				; trap CPU execution
 	z80prog
 		even
 endinit
@@ -338,18 +338,43 @@ CheckSumCheck:
 		move.l	#'init',(v_init).w ; set flag so checksum won't run again
 
 GameInit:
+		move.w	#$4EF9,$FFFFFFC4.w
+		move.l	#VBlank,$FFFFFFC6.w
+		bsr.w	VDPSetupGame
+		bsr.w	DetectEmu			; NTP: Run this now because apparently running it later on will fuck up fm3 channel mode on REGEN!?!
+		bsr.w	JoypadInit
+		jsr	MDDC_Main			; run the splash screen
+
+		disable_ints
+		lea	($C00004).l,a6				; load VDP command port to a6
+		move.w	#$8F01,(a6)				; set autoincrement to 1
+		move.l	#$94FF93FF,(a6)				; DMA length is entire VRAM
+		move.w	#$9780,(a6)				;
+		move.l	#$40000080,(a6)				; VRAM fill at 0
+		move.w	#0,-4(a6)				; fill with 0
+
+	@clearVRAM:
+		move.w	(a6),d1					; load VDP status to d1
+		btst	#1,d1					; check if busy
+		bne.s	@clearVRAM				; branch if yes
+		move.w	#$8F02,(a6)				; set autoincrement to 2
+
+		move.w	#$4EF9,$FFFFFFC4.w
+		move.l	#VBlank,$FFFFFFC6.w
+		move.w	#$4EF9,$FFFFFFCA.w
+		move.l	#HBlank,$FFFFFFCC.w
+		jsr	LoadDualPCM
+
 		lea	($FF0000).l,a6
 		moveq	#0,d7
 		move.w	#$3F7F,d6
+
 	@clearRAM:
 		move.l	d7,(a6)+
 		dbf	d6,@clearRAM	; clear RAM ($0000-$FDFF)
 
 		bsr.w	VDPSetupGame
-		bsr.w	DetectEmu
-		jsr	LoadDualPCM
-		bsr.w	JoypadInit
-
+		bsr.w	MouseInit
 		lea	(vdp_data_port).l,a6
 		locVRAM	$FF80,4(a6)		; NTP: load VRAM address of mouse cursor art
 		lea	(Art_Cursor).w,a5	; NTP: load ROM address of mouse cursor art
@@ -754,8 +779,11 @@ loc_119E:
 JoypadInit:
 		moveq	#$40,d0
 		move.b	d0,($A10009).l		; init port 1 (joypad 1)
-		move.b	#$60,($A1000B).l	; init port 2 (mouse)
 		move.b	d0,($A1000D).l		; init port 3 (expansion/extra)
+		rts
+
+MouseInit:
+		move.b	#$60,($A1000B).l	; init port 2 (mouse)
 		move.w	#159,(v_mouse_screenx).w
 		move.w	#111,(v_mouse_screeny).w
 
@@ -1338,7 +1366,7 @@ DetectEmu:
 		move.b	#$F0,1(a0)			; Timer B value
 
 		move.b	#$27,(a0)			; set dest to YM register $27
-		move.b	#$F,1(a0)			; set the load & enable bits for both timers
+		move.b	#%00001111,1(a0)		; set the load & enable bits for both timers
 
 	@chkloop:
 		move.b (a0),d0				; get the YM read register output
@@ -1396,7 +1424,6 @@ DetectEmu:
 
 	@notEmu:
 		rts
-
 
 ; -------------------------------------------------------------------------
 ; Z80 side of the bus request test
@@ -9848,6 +9875,8 @@ ObjPos_End:	incbin	"objpos\ending.bin"
 		even
 ObjPos_Null:	dc.b $FF, $FF, 0, 0, 0,	0
 ; ===========================================================================
+
+		include "#MDDC/Main.asm"
 
 		include "AMPS/code/smps2asm.asm"
 		include "AMPS/code/68k.asm"
