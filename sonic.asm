@@ -341,11 +341,11 @@ GameInit:
 		move.w	#$4EF9,$FFFFFFC4.w
 		move.l	#VBlank,$FFFFFFC6.w
 		bsr.w	VDPSetupGame
-		bsr.w	DetectEmu			; NTP: Run this now because apparently running it later on will fuck up fm3 channel mode on REGEN!?!
 		bsr.w	JoypadInit
 		jsr	MDDC_Main			; run the splash screen
 
 		disable_ints
+		bsr.w	DetectEmu				; NTP: Run this now because apparently running it later on will fuck up fm3 channel mode on REGEN!?!
 		lea	($C00004).l,a6				; load VDP command port to a6
 		move.w	#$8F01,(a6)				; set autoincrement to 1
 		move.l	#$94FF93FF,(a6)				; DMA length is entire VRAM
