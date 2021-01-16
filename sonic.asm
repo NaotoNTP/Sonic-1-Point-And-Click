@@ -959,12 +959,11 @@ ReadJoypads:
 	@read:
 		move.b	#0,(a1)
 		moveq	#$30,d0
-		nop
+		moveq	#$3F,d1
 		and.b	(a1),d0
 		move.b	#$40,(a1)
 		add.b	d0,d0
 		add.b	d0,d0
-		moveq	#$3F,d1
 		and.b	(a1),d1
 		or.b	d1,d0
 		not.b	d0
