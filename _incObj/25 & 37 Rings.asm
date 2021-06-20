@@ -347,8 +347,7 @@ RLoss_Bounce:	; Routine 2
 		move.w	obY(a0),d2
 	;	move.b	obHeight(a0),d0
 	;	ext.w	d0
-		moveq	#8,d0		; NTP: I mean... obHeight is never *not* 8 when it comes to rings, soooo...
-		add.w	d0,d2
+		addq.w	#8,d2		; NTP: I mean... obHeight is never *not* 8 when it comes to rings, soooo...
 		lea	(v_anglebuffer).w,a4
 		move.b	#0,(a4)
 		movea.w	#$10,a3
